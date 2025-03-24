@@ -2,7 +2,7 @@
 #include "ast.h"
 #include "parser.tab.h"
 
-extern ASTNode *root;  // Definido en parser.y
+extern ASTNode *root;
 extern int yyparse();
 
 int main(int argc, char **argv) {
@@ -17,11 +17,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    yyparse();  // Ejecuta el parser (llena 'root' con el AST)
+    yyparse();
     fclose(yyin);
 
     if (root) {
-        generateCode(root);  // Genera código C++
+        generateCode(root);
     }
 
     return 0;

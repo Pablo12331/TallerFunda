@@ -19,6 +19,6 @@ void generateCode(ASTNode *node) {
             }
             printf(";\n");
             break;
-        // ... (otros casos) ...
+        // ... Implementa otros casos ...
     }
 }
