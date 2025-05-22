@@ -35,6 +35,5 @@ ASTNode *createBinaryOpNode(ASTNode *left, ASTNode *right, char *op);
 ASTNode *createPrintNode(ASTNode *expr);
 ASTNode *createIfNode(ASTNode *cond, ASTNode *body);
 ASTNode *createForNode(char *var, ASTNode *range, ASTNode *body);
-ASTNode *createRangeNode(ASTNode *start, ASTNode *end);
 
 #endif
