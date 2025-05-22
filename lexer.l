@@ -1,35 +1,111 @@
 %{
-#include "parser.tab.h"   // Tokens generados por Bison
-#include "ast.h"          // Para el AST
-void yyerror(const char *s);
+#include <string.h>
+#include <stdlib.h>
+#include "parser.tab.h" 
+#include "Ast.h"   
+    
 %}
 
 %option noyywrap
+%option yylineno
+%x COMMENT_BLOCK
 
 %%
 
-[ \t\n]                 ;  // Ignorar espacios
+"//"[^\n]* {}
+"/*"                  { BEGIN(COMMENT_BLOCK);}
+<COMMENT_BLOCK>"*/"   { BEGIN(INITIAL); }
+<COMMENT_BLOCK>[^*\n]+ { }
+<COMMENT_BLOCK>"*"     {}
+<COMMENT_BLOCK>"\n"    { yylineno++;  }
+<COMMENT_BLOCK><<EOF>> { fprintf(stderr, "Error Léxico: Comentario de bloque no terminado cerca de la línea %d\n", yylineno); BEGIN(INITIAL); }
 
-"int"                   { return T_INT; }
-"float"                 { return T_FLOAT; }
-"print"                 { return T_PRINT; }
-"if"                    { return T_IF; }
-"else"                  { return T_ELSE; }
-"while"                 { return T_WHILE; }
-"for"                   { return T_FOR; }
-"in"                    { return T_IN; }
+"if"       { return IF; }
+"else"     { return ELSE; }
+"while"    { return WHILE; }
+"for"      { return FOR; }
+"return"   { return RETURN; }
+"int"      { return INT; }
+"float"    { return FLOAT; }
+"string"   { return STRING_TYPE; }
+"void"     { return VOID; }
+"print"    { return PRINT; }
+"read"     { return READ; }
+"bool"     { return BOOL_TYPE; }
+"true"     { yylval.ival = 1; return TRUE_LITERAL; } 
+"false"    { yylval.ival = 0; return FALSE_LITERAL; }
 
-"=="                    { return T_EQ; }
-"!="                    { return T_NEQ; }
-"<="                    { return T_LEQ; }
-">="                    { return T_GEQ; }
-".."                    { return T_RANGE; }
+"{"        { return LBRACE; }
+"}"        { return RBRACE; }
+"("        { return LPAREN; }
+")"        { return RPAREN; }
+";"        { return SEMICOLON; }
+"="        { return ASSIGN; }
+","        { return ','; }
 
-[0-9]+                  { yylval.num = atoi(yytext); return T_NUM; }
-[0-9]+\.[0-9]+          { yylval.fnum = atof(yytext); return T_FNUM; }
-\"[^\"]*\"              { yylval.str = strdup(yytext); return T_STRING; }
-[a-zA-Z_][a-zA-Z0-9_]*  { yylval.str = strdup(yytext); return T_ID; }
+"+"        { return PLUS; }
+"-"        { return MINUS; }
+"*"        { return MULT; }
+"/"        { return DIV; }
 
-.                       { yyerror("Invalid character"); }
+"=="       { return EQ; }
+"!="       { return NE; }
+"<"        { return LT; }
+">"        { return GT; }
+"<="       { return LE; }
+">="       { return GE; }
+"&&"       { return AND_OP; }
+"||"       { return OR_OP; }
+"!"        { return NOT_OP; }
+
+[0-9]+\.[0-9]+([eE][-+]?[0-9]+)?  { 
+    yylval.fval = atof(yytext);
+    return FLOAT_NUMBER;
+}
+
+[0-9]+     {
+    yylval.ival = atoi(yytext);
+    return NUMBER;
+}
+
+[a-zA-Z_][a-zA-Z0-9_]* {
+    yylval.sval = strdup(yytext);
+    if (!yylval.sval) {perror("strdup failed"); exit(1);}
+    return IDENTIFIER;
+}
+
+\"(\\.|[^\\"])*\" {
+    int len = yyleng - 2;
+    char* processed_sval = (char*)malloc(len + 1);
+    if (!processed_sval) { perror("malloc failed"); exit(1); }
+    char* write_ptr = processed_sval;
+    char* read_ptr = yytext + 1;
+    while (read_ptr < yytext + yyleng - 1) {
+        if (*read_ptr == '\\') {
+            read_ptr++;
+            switch (*read_ptr) {
+                case 'n': *write_ptr++ = '\n'; break;
+                case 't': *write_ptr++ = '\t'; break;
+                case '\\': *write_ptr++ = '\\'; break;
+                case '"': *write_ptr++ = '"'; break;
+                default: *write_ptr++ = *read_ptr;
+            }
+        } else {
+            *write_ptr++ = *read_ptr;
+        }
+        read_ptr++;
+    }
+    *write_ptr = '\0';
+
+    yylval.sval = processed_sval;
+    return STRING_LITERAL;
+}
+
+
+[ \t\r\n]+ { }
+
+.          {
+    fprintf(stderr, "Error Léxico: Caracter inválido '%s' en la línea %d\n", yytext, yylineno);
+}
 
 %%
