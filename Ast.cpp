@@ -225,8 +225,20 @@ Node* createFunctionCallNode(Node* nameNode, Node* args, int line) {
      return (Node*)n;
 }
 
-Node* createParamList(Node* param) { return param; }
-Node* addParamToList(Node* listNode, Node* param) { if (!listNode) return param; Node* current = listNode; while (current->next) { current = current->next; } current->next = param; return listNode; }
+Node* createParamList(Node* param) { 
+    if (param) { 
+        param->next = nullptr; 
+    }
+    return param; 
+}
+Node* addParamToList(Node* listNode, Node* param) { 
+    if (!listNode) return param; 
+    Node* current = listNode; 
+    while (current->next != nullptr) { current = current->next;} 
+    current->next = param; 
+    param->next = nullptr;
+    return listNode; 
+}
 Node* createArgList(Node* arg) { return arg; }
 Node* addArgToList(Node* listNode, Node* arg) { if (!listNode) return arg; Node* current = listNode; while (current->next) { current = current->next; } current->next = arg; return listNode; }
 
@@ -258,27 +270,20 @@ void freeAst(Node* node) {
         default: break;
     }
 
-    
-    // Libera la cadena enlazada por 'next' DESPUÉS de liberar los hijos específicos
     freeAst(node->next);
 
-    // Libera el nodo actual
     free(node);
 }
 
 void printAst(Node* node, int indent) {
     if (!node) {
-        // std::cout << std::string(indent * 2, ' ') << "(null)" << std::endl; // Opcional: mostrar nulos
         return;
     }
 
-    // Imprimir indentación
-    std::cout << std::string(indent * 2, ' '); // 2 espacios por nivel
+    std::cout << std::string(indent * 2, ' '); 
 
-    // Imprimir información básica del nodo
-    printf("[%d:L%d] ", node->type, node->line); // Imprime tipo enum y línea
+    printf("[%d:L%d] ", node->type, node->line);
 
-    // Imprimir detalles según el tipo de nodo
     switch (node->type) {
         case NODE_CONSTANT_INT:
             printf("INT_CONST(%d)\n", ((ConstantIntNode*)node)->value);
@@ -339,7 +344,15 @@ void printAst(Node* node, int indent) {
              std::cout << std::string((indent + 1) * 2, ' ') << "NAME:\n";
              printAst((Node*)sig->name, indent + 2);
              std::cout << std::string((indent + 1) * 2, ' ') << "PARAMS:\n";
-             printAst(sig->parameters, indent + 2); // Imprime lista de parámetros
+             Node* current_param = sig->parameters;
+             int param_indent = indent + 2;
+             if (!current_param) { 
+                 std::cout << std::string(param_indent * 2, ' ') << "(no params)\n";
+             }
+             while (current_param) {
+                 printAst(current_param, param_indent);
+                 current_param = current_param->next; 
+             }
              break;
         }
         case NODE_FUNCTION_DEF:
@@ -389,20 +402,25 @@ void printAst(Node* node, int indent) {
              printf("RETURN:\n");
              printAst(((ReturnNode*)node)->returnValue, indent + 1);
              break;
-         case NODE_FUNCTION_CALL:
+         case NODE_FUNCTION_CALL: {
               printf("CALL:\n");
-              printAst((Node*)((FunctionCallNode*)node)->name, indent + 1);
+              FunctionCallNode* call = (FunctionCallNode*)node;
+              printAst((Node*)call->name, indent + 1);
               std::cout << std::string((indent + 1) * 2, ' ') << "ARGS:\n";
-              printAst(((FunctionCallNode*)node)->arguments, indent + 2); // Imprime lista args
-              break;
 
+              Node* current_arg = call->arguments;
+              int arg_indent = indent + 2;
+              if (!current_arg) {
+                  std::cout << std::string(arg_indent * 2, ' ') << "(no args)\n";
+              }
+              while (current_arg) {
+                  printAst(current_arg, arg_indent);
+                  current_arg = current_arg->next;
+              }
+              break;
+         }
         default:
             printf("Nodo Desconocido (%d)\n", node->type);
             break;
     }
-
-    // Imprimir el siguiente nodo en listas enlazadas (params/args)
-    // OJO: Esto puede imprimir dos veces si el nodo padre ya recorrió la lista
-    // Es mejor manejar el recorrido de ->next DENTRO del caso del nodo padre (FUNC_SIG, FUNC_CALL)
-    // printAst(node->next, indent); // <-- COMENTAR O QUITAR si causa doble impresión
 }

@@ -8,17 +8,10 @@
 
 %option noyywrap
 %option yylineno
-%x COMMENT_BLOCK
 
 %%
 
 "//"[^\n]* {}
-"/*"                  { BEGIN(COMMENT_BLOCK);}
-<COMMENT_BLOCK>"*/"   { BEGIN(INITIAL); }
-<COMMENT_BLOCK>[^*\n]+ { }
-<COMMENT_BLOCK>"*"     {}
-<COMMENT_BLOCK>"\n"    { yylineno++;  }
-<COMMENT_BLOCK><<EOF>> { fprintf(stderr, "Error Léxico: Comentario de bloque no terminado cerca de la línea %d\n", yylineno); BEGIN(INITIAL); }
 
 "if"       { return IF; }
 "else"     { return ELSE; }
