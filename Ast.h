@@ -3,20 +3,7 @@
 
 #include <vector>
 #include <string>
-
-typedef enum {
-    NODE_CONSTANT_INT, NODE_CONSTANT_FLOAT, NODE_CONSTANT_STRING, NODE_CONSTANT_BOOL,
-    NODE_IDENTIFIER, NODE_BINARY_OP, NODE_UNARY_OP,
-    NODE_ASSIGNMENT, NODE_VAR_DECLARATION,
-    NODE_IF, NODE_WHILE, NODE_FOR,
-    NODE_PRINT, NODE_READ,
-    NODE_FUNCTION_DEF, NODE_FUNCTION_CALL, NODE_FUNC_SIG,
-    NODE_RETURN,
-    NODE_STATEMENT_LIST,
-    NODE_TYPE,
-    NODE_PARAM_LIST, NODE_ARG_LIST,
-    NODE_PLACEHOLDER
-} NodeType;
+#include "common_types.h"
 
 typedef struct Node Node;
 
@@ -24,34 +11,176 @@ struct Node {
     NodeType type;
     Node *next;
     int line;
+    SymbolBasicType tipoCalculado;
 };
 
 typedef struct {
-    NodeType type;
-    Node *next;
-    int line;
+    NodeType type; 
+    Node *next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
     int op;
     Node *operand;
 } UnaryOpNode;
 
-typedef struct { NodeType type; Node *next; int line; int value; } ConstantIntNode;
-typedef struct { NodeType type; Node *next; int line; double value; } ConstantFloatNode;
-typedef struct { NodeType type; Node *next; int line; int value; } ConstantBoolNode;
-typedef struct { NodeType type; Node *next; int line; char *sval; } StringLiteralNode;
-typedef struct { NodeType type; Node *next; int line; char *sval; } IdentifierNode;
-typedef struct { NodeType type; Node *next; int line; int op; Node *left; Node *right; } BinaryOpNode;
-typedef struct { NodeType type; Node *next; int line; IdentifierNode *identifier; Node *expression; } AssignmentNode;
-typedef struct { NodeType type; Node *next; int line; Node *varTypeNode; IdentifierNode *identifier; Node *initialValue; } VarDeclarationNode;
-typedef struct { NodeType type; Node* next; int line; Node* condition; Node* thenBranch; Node* elseBranch; } IfNode;
-typedef struct { NodeType type; Node* next; int line; Node* condition; Node* body; } WhileNode;
-typedef struct { NodeType type; Node* next; int line; Node* initialization; Node* condition; Node* increment; Node* body; } ForNode;
-typedef struct { NodeType type; Node* next; int line; Node* expression; } PrintNode;
-typedef struct { NodeType type; Node* next; int line; IdentifierNode* identifier; } ReadNode;
-typedef struct { NodeType type; Node* next; int line; Node* returnType; IdentifierNode* name; Node* parameters; } FunctionSignatureNode;
-typedef struct { NodeType type; Node* next; int line; Node* signature; Node* body;} FunctionDefNode;
-typedef struct { NodeType type; Node* next; int line; IdentifierNode* name; Node* arguments;} FunctionCallNode;
-typedef struct { NodeType type; Node* next; int line; Node* returnValue;} ReturnNode;
-typedef struct { NodeType type; Node *next; int line; std::vector<Node*>* statements;} StatementListNode;
+typedef struct {
+    NodeType type;
+    Node *next; 
+    int line; 
+    SymbolBasicType tipoCalculado; 
+    int value;
+} ConstantIntNode;
+
+typedef struct {
+    NodeType type; 
+    Node *next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    double value;
+} ConstantFloatNode;
+
+typedef struct {
+    NodeType type; 
+    Node *next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    int value; // 0 para false, 1 para true
+} ConstantBoolNode;
+
+typedef struct {
+    NodeType type; 
+    Node *next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    char *sval;
+} StringLiteralNode;
+
+typedef struct {
+    NodeType type; 
+    Node *next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    char *sval;
+} IdentifierNode;
+
+typedef struct {
+    NodeType type;
+    Node *next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    int op;
+    Node *left;
+    Node *right;
+} BinaryOpNode;
+
+typedef struct {
+    NodeType type; 
+    Node *next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    IdentifierNode *identifier;
+    Node *expression;
+} AssignmentNode;
+
+typedef struct {
+    NodeType type; 
+    Node *next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    Node *varTypeNode;
+    IdentifierNode *identifier;
+    Node *initialValue;
+} VarDeclarationNode;
+
+typedef struct {
+    NodeType type; 
+    Node* next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    Node* condition;
+    Node* thenBranch;
+    Node* elseBranch;
+} IfNode;
+
+typedef struct {
+    NodeType type; 
+    Node* next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    Node* condition;
+    Node* body;
+} WhileNode;
+
+typedef struct {
+    NodeType type; 
+    Node* next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    Node* initialization;
+    Node* condition;
+    Node* increment;
+    Node* body;
+} ForNode;
+
+typedef struct {
+    NodeType type; 
+    Node* next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    Node* expression;
+} PrintNode;
+
+typedef struct {
+    NodeType type; 
+    Node* next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    IdentifierNode* identifier;
+} ReadNode;
+
+typedef struct {
+    NodeType type; 
+    Node* next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    Node* returnType;
+    IdentifierNode* name;
+    Node* parameters;
+} FunctionSignatureNode;
+
+typedef struct {
+    NodeType type; 
+    Node* next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    Node* signature;
+    Node* body;
+} FunctionDefNode;
+
+typedef struct {
+    NodeType type; 
+    Node* next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    IdentifierNode* name;
+    Node* arguments;
+} FunctionCallNode;
+
+typedef struct {
+    NodeType type; 
+    Node* next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    Node* returnValue;
+} ReturnNode;
+
+typedef struct {
+    NodeType type; 
+    Node *next; 
+    int line; 
+    SymbolBasicType tipoCalculado; // Corregido
+    std::vector<Node*>* statements;
+} StatementListNode;
 
 Node* createConstantIntNode(int value, int line);
 Node* createConstantFloatNode(double value, int line);

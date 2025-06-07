@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include "common_types.h"
 #include "Ast.h" 
 #include "symbol_table.h"
 #include "type_checker.h"
@@ -16,6 +17,7 @@ extern FILE *yyin;
 void yyerror(const char *s);
 
 Node* globalAstRoot = nullptr;
+Node* current_declaration_type_node = nullptr;
 
 %}
 
@@ -49,9 +51,10 @@ Node* globalAstRoot = nullptr;
 %token <ival> TRUE_LITERAL FALSE_LITERAL
 
 
-%type <nodePtr> program statement_list statement function var_declaration assignment io_statement control_statement type
+%type <nodePtr> program statement_list statement function assignment io_statement control_statement type
 %type <nodePtr> expression term factor statements_opt function_signature opt_expression param_list params_opt param arg_list args_opt
-
+%type <nodePtr> compound_statement
+%type <nodePtr> var_declaration_actual declarator_list_actual declarator_actual
 
 %start program
 
@@ -61,7 +64,7 @@ Node* globalAstRoot = nullptr;
 %left EQ NE LT GT LE GE
 %left PLUS MINUS
 %left MULT DIV
-%right NOT_OP
+%right NOT_OP UMINUS
 
 %%
 
@@ -78,7 +81,7 @@ statement_list:
     ;
 
 statement:
-      var_declaration SEMICOLON { $$ = $1; }
+      var_declaration_actual SEMICOLON { $$ = $1; }
     | assignment SEMICOLON      { $$ = $1; }
     | io_statement SEMICOLON    { $$ = $1; }
     | control_statement       { $$ = $1; }
@@ -87,8 +90,10 @@ statement:
     | RETURN SEMICOLON          { $$ = createReturnNode(nullptr, yylineno); }
     | SEMICOLON                 { $$ = nullptr; }
     | expression SEMICOLON      { $$ = $1; }
+    | compound_statement      { $$ = $1; }
     ;
 
+<<<<<<< Updated upstream
 var_declaration:
     type IDENTIFIER
       { 
@@ -110,14 +115,77 @@ var_declaration:
           yyerror(err_msg.c_str());
         }
       }
+=======
+compound_statement:
+    LBRACE RBRACE
+        { $$ = createStatementListNode(nullptr, yylineno); } 
+    | LBRACE statement_list RBRACE
+        { $$ = $2; }
+    ;
+
+var_declaration_actual: 
+    type 
+    declarator_list_actual 
+    {
+        $$ = $2; 
+        current_declaration_type_node = nullptr;
+    }
+    ;
+
+declarator_list_actual: 
+    declarator_actual
+    {
+        $$ = createStatementListNode($1, $1 ? $1->line : yylineno);
+    }
+    | declarator_list_actual ',' declarator_actual
+    {
+        $$ = addStatementToList($1, $3);
+    }
+    ;
+
+declarator_actual: 
+    IDENTIFIER
+    {
+        Node* id_node_for_ast = createIdentifierNode($1, yylineno);
+        $$ = createVarDeclarationNode(current_declaration_type_node, id_node_for_ast, nullptr, yylineno);
+        if (!c_insert_variable($1, current_declaration_type_node, yylineno, $$)) 
+        {
+            yyerror(("Error Semántico: Re-declaración de variable '" + std::string($1) + "'").c_str());
+        }
+    }
+    | IDENTIFIER ASSIGN expression
+    {
+        Node* id_node_for_ast = createIdentifierNode($1, yylineno);
+        $$ = createVarDeclarationNode(current_declaration_type_node, id_node_for_ast, $3, yylineno);
+        if (!c_insert_variable($1, current_declaration_type_node, yylineno, $$)) 
+        {
+            yyerror(("Error Semántico: Re-declaración de variable '" + std::string($1) + "'").c_str());
+        }
+    }
+>>>>>>> Stashed changes
     ;
 
 type:
-      INT   { $$ = createIdentifierNode(strdup("int"), yylineno); ((Node*)$$)->type = NODE_TYPE; }
-    | FLOAT { $$ = createIdentifierNode(strdup("float"), yylineno); ((Node*)$$)->type = NODE_TYPE; }
-    | STRING_TYPE { $$ = createIdentifierNode(strdup("string"), yylineno); ((Node*)$$)->type = NODE_TYPE; }
-    | VOID  { $$ = createIdentifierNode(strdup("void"), yylineno); ((Node*)$$)->type = NODE_TYPE; }
-    | BOOL_TYPE { $$ = createIdentifierNode(strdup("bool"), yylineno); ((Node*)$$)->type = NODE_TYPE; }
+      INT   { $$ = createIdentifierNode(strdup("int"), yylineno); 
+              ((Node*)$$)->type = NODE_TYPE; 
+              current_declaration_type_node = $$;
+            }
+    | FLOAT { $$ = createIdentifierNode(strdup("float"), yylineno); 
+              ((Node*)$$)->type = NODE_TYPE; 
+              current_declaration_type_node = $$;
+            }
+    | STRING_TYPE { $$ = createIdentifierNode(strdup("string"), yylineno); 
+                    ((Node*)$$)->type = NODE_TYPE;
+                    current_declaration_type_node = $$; 
+                  }
+    | VOID  { $$ = createIdentifierNode(strdup("void"), yylineno); 
+              ((Node*)$$)->type = NODE_TYPE; 
+              current_declaration_type_node = $$;
+            }
+    | BOOL_TYPE { $$ = createIdentifierNode(strdup("bool"), yylineno); 
+                  ((Node*)$$)->type = NODE_TYPE; 
+                  current_declaration_type_node = $$;
+                }
     ;
 
 assignment:
@@ -164,8 +232,13 @@ io_statement:
 control_statement:
       IF LPAREN expression RPAREN LBRACE statement_list RBRACE
       { $$ = createIfNode($3, $6, nullptr, yylineno); }
+<<<<<<< Updated upstream
     | IF LPAREN expression RPAREN LBRACE statement_list RBRACE ELSE LBRACE statement_list RBRACE
     { $$ = createIfNode($3, $6, $10, yylineno); }
+=======
+    | IF LPAREN expression RPAREN LBRACE statement_list RBRACE ELSE statement
+    { $$ = createIfNode($3, $6, $9, yylineno); }
+>>>>>>> Stashed changes
     | WHILE LPAREN expression RPAREN LBRACE statement_list RBRACE
     { $$ = createWhileNode($3, $6, yylineno); }
     | FOR LPAREN opt_expression SEMICOLON opt_expression SEMICOLON opt_expression RPAREN LBRACE statement_list RBRACE
@@ -193,7 +266,11 @@ function_signature:
     type IDENTIFIER LPAREN params_opt RPAREN
     { 
       Node* func_name_node_for_ast = createIdentifierNode($2, yylineno); 
+<<<<<<< Updated upstream
       Node* params_node = $4; // $4 es el nodo 'param_list' (cabeza de lista de VarDeclarationNode para params)
+=======
+      Node* params_node = $4;
+>>>>>>> Stashed changes
       Node* sig_node = createFunctionSignatureNode($1, func_name_node_for_ast, params_node, yylineno);
 
       if (!c_insert_function($2, $1, params_node, yylineno, sig_node)) {
@@ -306,6 +383,7 @@ factor:
         $$ = createFunctionCallNode(func_call_name_node, $3, yylineno);
     }
     | NOT_OP factor   { $$ = createUnaryOpNode(NOT_OP, $2, yylineno); }
+    | MINUS factor %prec UMINUS { $$ = createUnaryOpNode(MINUS, $2, yylineno); }
     ;
 
 args_opt:
@@ -319,8 +397,6 @@ arg_list:
     ;
 
 %%
-
-
 
 void yyerror(const char *s) {
     std::cerr << "Error de Sintaxis: " << s << " cerca de la línea " << yylineno << std::endl;
@@ -355,6 +431,7 @@ int main(int argc, char *argv[]) {
             std::cerr << "[INFO] Verificación de tipos completada CON ERRORES" << std::endl;
         }
 
+<<<<<<< Updated upstream
         if (result == 0) {
             if (sinErroresDeTipo) {
                 std::cerr << "[INFO] Raíz del AST capturada. Imprimiendo AST..." << std::endl;
@@ -365,6 +442,17 @@ int main(int argc, char *argv[]) {
             } else {
                 std::cerr << "[INFO] No se imprime el AST debido a errores de tipo." << std::endl;
             }
+=======
+        if (globalAstRoot != nullptr) {
+            std::cerr << "[INFO] Raíz del AST capturada. Imprimiendo AST..." << std::endl;
+            if (!sinErroresDeTipo) {
+                std::cerr << "[INFO] Nota: Se detectaron errores de tipo. El AST podría mostrar nodos marcados como ERROR_TYPE." << std::endl;
+            }
+            std::cout << "--- INICIO AST ---" << std::endl;
+            printAst(globalAstRoot);
+            std::cout << "--- FIN AST ---" << std::endl;
+
+>>>>>>> Stashed changes
         } else {
             std::cerr << "[INFO] Análisis sintáctico fallido (código " << result << ")." << std::endl;
         }
