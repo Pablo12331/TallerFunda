@@ -298,12 +298,28 @@ void freeAst(Node* node) {
 void printAst(Node* node, int indent) {
     if (!node) {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         return;
     }
 
     std::cout << std::string(indent * 2, ' '); 
 
     printf("[%d:L%d] ", node->type, node->line);
+=======
+        std::cout << std::string(indent * 2, ' ') << "(null)" << std::endl;
+        return;
+    }
+
+    std::cout << std::string(indent * 2, ' ');
+
+    std::cout << "[" << node->type << ":L" << node->line << "] ";
+
+    std::string tipoCalcStr = "";
+    if (node->tipoCalculado != SYM_TYPE_UNCHECKED) { 
+        tipoCalcStr = " [TipoAST: " + symbolBasicTypeToString(node->tipoCalculado) + "]";
+    }
+
+>>>>>>> Stashed changes
 =======
         std::cout << std::string(indent * 2, ' ') << "(null)" << std::endl;
         return;
@@ -401,6 +417,7 @@ void printAst(Node* node, int indent) {
              std::cout << std::string((indent + 1) * 2, ' ') << "NAME:" << std::endl;
              printAst((Node*)sig->name, indent + 2);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
              std::cout << std::string((indent + 1) * 2, ' ') << "PARAMS:\n";
              Node* current_param = sig->parameters;
              int param_indent = indent + 2;
@@ -411,6 +428,8 @@ void printAst(Node* node, int indent) {
                  printAst(current_param, param_indent);
                  current_param = current_param->next; 
 =======
+=======
+>>>>>>> Stashed changes
              std::cout << std::string((indent + 1) * 2, ' ') << "PARAMS:" << std::endl;
              Node* current_param = sig->parameters;
              if (!current_param) {
@@ -419,6 +438,9 @@ void printAst(Node* node, int indent) {
              while (current_param) { 
                  printAst(current_param, indent + 2);
                  current_param = current_param->next;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
              }
              break;
@@ -471,6 +493,7 @@ void printAst(Node* node, int indent) {
              printAst(((ReturnNode*)node)->returnValue, indent + 1);
              break;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
          case NODE_FUNCTION_CALL: {
               printf("CALL:\n");
               FunctionCallNode* call = (FunctionCallNode*)node;
@@ -488,6 +511,8 @@ void printAst(Node* node, int indent) {
               }
               break;
          }
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
         default:

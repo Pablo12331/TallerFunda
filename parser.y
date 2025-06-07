@@ -94,6 +94,7 @@ statement:
     ;
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 var_declaration:
     type IDENTIFIER
       { 
@@ -116,6 +117,8 @@ var_declaration:
         }
       }
 =======
+=======
+>>>>>>> Stashed changes
 compound_statement:
     LBRACE RBRACE
         { $$ = createStatementListNode(nullptr, yylineno); } 
@@ -162,6 +165,9 @@ declarator_actual:
             yyerror(("Error Semántico: Re-declaración de variable '" + std::string($1) + "'").c_str());
         }
     }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     ;
 
@@ -233,8 +239,13 @@ control_statement:
       IF LPAREN expression RPAREN LBRACE statement_list RBRACE
       { $$ = createIfNode($3, $6, nullptr, yylineno); }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     | IF LPAREN expression RPAREN LBRACE statement_list RBRACE ELSE LBRACE statement_list RBRACE
     { $$ = createIfNode($3, $6, $10, yylineno); }
+=======
+    | IF LPAREN expression RPAREN LBRACE statement_list RBRACE ELSE statement
+    { $$ = createIfNode($3, $6, $9, yylineno); }
+>>>>>>> Stashed changes
 =======
     | IF LPAREN expression RPAREN LBRACE statement_list RBRACE ELSE statement
     { $$ = createIfNode($3, $6, $9, yylineno); }
@@ -267,7 +278,11 @@ function_signature:
     { 
       Node* func_name_node_for_ast = createIdentifierNode($2, yylineno); 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       Node* params_node = $4; // $4 es el nodo 'param_list' (cabeza de lista de VarDeclarationNode para params)
+=======
+      Node* params_node = $4;
+>>>>>>> Stashed changes
 =======
       Node* params_node = $4;
 >>>>>>> Stashed changes
@@ -432,6 +447,7 @@ int main(int argc, char *argv[]) {
         }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         if (result == 0) {
             if (sinErroresDeTipo) {
                 std::cerr << "[INFO] Raíz del AST capturada. Imprimiendo AST..." << std::endl;
@@ -443,6 +459,8 @@ int main(int argc, char *argv[]) {
                 std::cerr << "[INFO] No se imprime el AST debido a errores de tipo." << std::endl;
             }
 =======
+=======
+>>>>>>> Stashed changes
         if (globalAstRoot != nullptr) {
             std::cerr << "[INFO] Raíz del AST capturada. Imprimiendo AST..." << std::endl;
             if (!sinErroresDeTipo) {
@@ -452,6 +470,9 @@ int main(int argc, char *argv[]) {
             printAst(globalAstRoot);
             std::cout << "--- FIN AST ---" << std::endl;
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         } else {
             std::cerr << "[INFO] Análisis sintáctico fallido (código " << result << ")." << std::endl;
