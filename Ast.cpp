@@ -7,13 +7,20 @@
 #include "parser.tab.h"
 #include "symbol_table.h"
 
+//Implementacion de todas las funciones que estan de Ast.h (INICIO)
+
+//La sentencia malloc(sizeof(VarDeclarationNode)) ayuda a reservar la cantidad exacta de memoria para el tipo de nodo que estamos utilizando
+//la sentencia ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED inicializa al tipo calculado a un estado "no verificado"
+//la sentencia if (!n) { fprintf(stderr, "malloc failed\n"); exit(1); } reporta un error por si en algun casual el compilador se queda sin memoria
+//la sentancia n->type = NODE_CONSTANT_FLOAT; asigna la etiqueta correcta al nuevo nodo
+
 Node* createConstantIntNode(int value, int line) {
     ConstantIntNode* n = (ConstantIntNode*)malloc(sizeof(ConstantIntNode));
-    if (!n) { fprintf(stderr, "malloc failed\n"); exit(1); }
+    if (!n) { fprintf(stderr, "malloc failed\n"); exit(1); } 
     n->type = NODE_CONSTANT_INT;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->value = value;
     return (Node*)n;
 }
@@ -24,7 +31,7 @@ Node* createConstantFloatNode(double value, int line) {
     n->type = NODE_CONSTANT_FLOAT;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->value = value;
     return (Node*)n;
 }
@@ -35,7 +42,7 @@ Node* createConstantBoolNode(int value, int line) {
     n->type = NODE_CONSTANT_BOOL;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->value = value;
     return (Node*)n;
 }
@@ -46,7 +53,7 @@ Node* createStringLiteralNode(char* sval, int line) {
     n->type = NODE_CONSTANT_STRING;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->sval = sval;
     return (Node*)n;
 }
@@ -57,7 +64,7 @@ Node* createIdentifierNode(char* sval, int line) {
     n->type = NODE_IDENTIFIER;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->sval = sval;
     return (Node*)n;
 }
@@ -68,7 +75,7 @@ Node* createUnaryOpNode(int op, Node* operand, int line) {
     n->type = NODE_UNARY_OP;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->op = op;
     n->operand = operand;
     return (Node*)n;
@@ -80,7 +87,7 @@ Node* createBinaryOpNode(int op, Node* left, Node* right, int line) {
     n->type = NODE_BINARY_OP;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->op = op;
     n->left = left;
     n->right = right;
@@ -93,7 +100,7 @@ Node* createAssignmentNode(Node* identifier, Node* expression, int line) {
     n->type = NODE_ASSIGNMENT;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->identifier = (IdentifierNode*)identifier;
     n->expression = expression;
     return (Node*)n;
@@ -105,7 +112,7 @@ Node* createVarDeclarationNode(Node* typeNode, Node* idNode, Node* initVal, int 
      n->type = NODE_VAR_DECLARATION;
      n->next = nullptr;
      n->line = line;
-     ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+     ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
      n->varTypeNode = typeNode;
      n->identifier = (IdentifierNode*)idNode;
      n->initialValue = initVal;
@@ -118,7 +125,7 @@ Node* createStatementListNode(Node* statement, int line) {
     n->type = NODE_STATEMENT_LIST;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->statements = new std::vector<Node*>();
     if(statement) n->statements->push_back(statement);
     return (Node*)n;
@@ -142,7 +149,7 @@ Node* createFunctionSignatureNode(Node* typeNode, Node* nameNode, Node* params, 
     n->type = NODE_FUNC_SIG;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->returnType = typeNode;
     n->name = (IdentifierNode*)nameNode;
     n->parameters = params;
@@ -155,7 +162,7 @@ Node* createFunctionDefNode(Node* signatureNode, Node* bodyNode, int line) {
     n->type = NODE_FUNCTION_DEF;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->signature = signatureNode;
     n->body = bodyNode;
     return (Node*)n;
@@ -167,7 +174,7 @@ Node* createForNode(Node* init, Node* cond, Node* incr, Node* body, int line) {
     n->type = NODE_FOR;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->initialization = init;
     n->condition = cond;
     n->increment = incr;
@@ -181,7 +188,7 @@ Node* createIfNode(Node* cond, Node* thenB, Node* elseB, int line) {
     n->type = NODE_IF;
     n->next = nullptr;
     n->line = line;
-    ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+    ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
     n->condition = cond;
     n->thenBranch = thenB;
     n->elseBranch = elseB;
@@ -194,7 +201,7 @@ Node* createWhileNode(Node* cond, Node* body, int line) {
      n->type = NODE_WHILE;
      n->next = nullptr;
      n->line = line;
-     ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+     ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
      n->condition = cond;
      n->body = body;
      return (Node*)n;
@@ -206,7 +213,7 @@ Node* createPrintNode(Node* expr, int line) {
      n->type = NODE_PRINT;
      n->next = nullptr;
      n->line = line;
-     ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+     ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
      n->expression = expr;
      return (Node*)n;
 }
@@ -217,7 +224,7 @@ Node* createReadNode(Node* idNode, int line) {
      n->type = NODE_READ;
      n->next = nullptr;
      n->line = line;
-     ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+     ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
      n->identifier = (IdentifierNode*)idNode;
      return (Node*)n;
 }
@@ -228,7 +235,7 @@ Node* createReturnNode(Node* retVal, int line) {
      n->type = NODE_RETURN;
      n->next = nullptr;
      n->line = line;
-     ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+     ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
      n->returnValue = retVal;
      return (Node*)n;
 }
@@ -239,10 +246,30 @@ Node* createFunctionCallNode(Node* nameNode, Node* args, int line) {
      n->type = NODE_FUNCTION_CALL;
      n->next = nullptr;
      n->line = line;
-     ((Node*)n)->tipoCalculado = SYM_TYPE_UNCHECKED;
+     ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED;
      n->name = (IdentifierNode*)nameNode;
      n->arguments = args;
      return (Node*)n;
+}
+
+Node* createBreakNode(int line) {
+    Node* n = (Node*)malloc(sizeof(Node));
+    if (!n) { fprintf(stderr, "malloc failed\n"); exit(1); }
+    n->type = NODE_BREAK;
+    n->next = nullptr;
+    n->line = line;
+    n->calculatedType = SYM_TYPE_VOID;
+    return n;
+}
+
+Node* createContinueNode(int line) {
+    Node* n = (Node*)malloc(sizeof(Node));
+    if (!n) { fprintf(stderr, "malloc failed\n"); exit(1); }
+    n->type = NODE_CONTINUE;
+    n->next = nullptr;
+    n->line = line;
+    n->calculatedType = SYM_TYPE_VOID;
+    return n;
 }
 
 Node* createParamList(Node* param) { 
@@ -260,8 +287,16 @@ Node* addParamToList(Node* listNode, Node* param) {
     return listNode; 
 }
 Node* createArgList(Node* arg) { return arg; }
-Node* addArgToList(Node* listNode, Node* arg) { if (!listNode) return arg; Node* current = listNode; while (current->next) { current = current->next; } current->next = arg; return listNode; }
 
+Node* addArgToList(Node* listNode, Node* arg) {
+     if (!listNode) return arg; 
+     Node* current = listNode; 
+     while (current->next) { 
+        current = current->next; 
+    } 
+    current->next = arg; 
+    return listNode; 
+}
 
 void freeAst(Node* node) {
     if (!node) return;
@@ -297,15 +332,6 @@ void freeAst(Node* node) {
 
 void printAst(Node* node, int indent) {
     if (!node) {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        return;
-    }
-
-    std::cout << std::string(indent * 2, ' '); 
-
-    printf("[%d:L%d] ", node->type, node->line);
-=======
         std::cout << std::string(indent * 2, ' ') << "(null)" << std::endl;
         return;
     }
@@ -314,64 +340,48 @@ void printAst(Node* node, int indent) {
 
     std::cout << "[" << node->type << ":L" << node->line << "] ";
 
-    std::string tipoCalcStr = "";
-    if (node->tipoCalculado != SYM_TYPE_UNCHECKED) { 
-        tipoCalcStr = " [TipoAST: " + symbolBasicTypeToString(node->tipoCalculado) + "]";
+    std::string CalcTypeStr = "";
+    if (node->calculatedType != SYM_TYPE_UNCHECKED) { 
+        CalcTypeStr = " [TipoAST: " + symbolBasicTypeToString(node->calculatedType) + "]";
     }
 
->>>>>>> Stashed changes
-=======
-        std::cout << std::string(indent * 2, ' ') << "(null)" << std::endl;
-        return;
-    }
-
-    std::cout << std::string(indent * 2, ' ');
-
-    std::cout << "[" << node->type << ":L" << node->line << "] ";
-
-    std::string tipoCalcStr = "";
-    if (node->tipoCalculado != SYM_TYPE_UNCHECKED) { 
-        tipoCalcStr = " [TipoAST: " + symbolBasicTypeToString(node->tipoCalculado) + "]";
-    }
-
->>>>>>> Stashed changes
 
     switch (node->type) {
         case NODE_CONSTANT_INT:
-            std::cout << "INT_CONST(" << ((ConstantIntNode*)node)->value << ")" << tipoCalcStr << std::endl;
+            std::cout << "INT_CONST(" << ((ConstantIntNode*)node)->value << ")" << CalcTypeStr << std::endl;
             break;
         case NODE_CONSTANT_FLOAT:
-            std::cout << "FLOAT_CONST(" << ((ConstantFloatNode*)node)->value << ")" << tipoCalcStr << std::endl;
+            std::cout << "FLOAT_CONST(" << ((ConstantFloatNode*)node)->value << ")" << CalcTypeStr << std::endl;
             break;
         case NODE_CONSTANT_BOOL:
-            std::cout << "BOOL_CONST(" << (((ConstantBoolNode*)node)->value ? "true" : "false") << ")" << tipoCalcStr << std::endl;
+            std::cout << "BOOL_CONST(" << (((ConstantBoolNode*)node)->value ? "true" : "false") << ")" << CalcTypeStr << std::endl;
             break;
         case NODE_CONSTANT_STRING:
-            std::cout << "STR_CONST(\"" << ((StringLiteralNode*)node)->sval << "\")" << tipoCalcStr << std::endl;
+            std::cout << "STR_CONST(\"" << ((StringLiteralNode*)node)->sval << "\")" << CalcTypeStr << std::endl;
             break;
         case NODE_IDENTIFIER:
-            std::cout << "ID(\"" << ((IdentifierNode*)node)->sval << "\")" << tipoCalcStr << std::endl;
+            std::cout << "ID(\"" << ((IdentifierNode*)node)->sval << "\")" << CalcTypeStr << std::endl;
             break;
         case NODE_TYPE: 
             std::cout << "TYPE(" << ((IdentifierNode*)node)->sval << ")" << std::endl;
             break;
         case NODE_UNARY_OP:
             
-            std::cout << "UNARY_OP(" << ((UnaryOpNode*)node)->op << ")" << tipoCalcStr << std::endl;
+            std::cout << "UNARY_OP(" << ((UnaryOpNode*)node)->op << ")" << CalcTypeStr << std::endl;
             printAst(((UnaryOpNode*)node)->operand, indent + 1);
             break;
         case NODE_BINARY_OP:
-            std::cout << "BINARY_OP(" << ((BinaryOpNode*)node)->op << ")" << tipoCalcStr << std::endl;
+            std::cout << "BINARY_OP(" << ((BinaryOpNode*)node)->op << ")" << CalcTypeStr << std::endl;
             printAst(((BinaryOpNode*)node)->left, indent + 1);
             printAst(((BinaryOpNode*)node)->right, indent + 1);
             break;
         case NODE_ASSIGNMENT: 
-            std::cout << "ASSIGN:" << tipoCalcStr << std::endl;
+            std::cout << "ASSIGN:" << CalcTypeStr << std::endl;
             printAst((Node*)((AssignmentNode*)node)->identifier, indent + 1); 
             printAst(((AssignmentNode*)node)->expression, indent + 1);
             break;
         case NODE_FUNCTION_CALL:
-             std::cout << "CALL:" << tipoCalcStr << std::endl;
+             std::cout << "CALL:" << CalcTypeStr << std::endl;
              { 
                  FunctionCallNode* call = (FunctionCallNode*)node;
                  printAst((Node*)call->name, indent + 1); 
@@ -386,8 +396,6 @@ void printAst(Node* node, int indent) {
                  }
              }
              break;
-
-        
         case NODE_VAR_DECLARATION:
              std::cout << "VAR_DECL:" << std::endl;
              printAst(((VarDeclarationNode*)node)->varTypeNode, indent + 1);
@@ -416,20 +424,6 @@ void printAst(Node* node, int indent) {
              printAst(sig->returnType, indent + 2);
              std::cout << std::string((indent + 1) * 2, ' ') << "NAME:" << std::endl;
              printAst((Node*)sig->name, indent + 2);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-             std::cout << std::string((indent + 1) * 2, ' ') << "PARAMS:\n";
-             Node* current_param = sig->parameters;
-             int param_indent = indent + 2;
-             if (!current_param) { 
-                 std::cout << std::string(param_indent * 2, ' ') << "(no params)\n";
-             }
-             while (current_param) {
-                 printAst(current_param, param_indent);
-                 current_param = current_param->next; 
-=======
-=======
->>>>>>> Stashed changes
              std::cout << std::string((indent + 1) * 2, ' ') << "PARAMS:" << std::endl;
              Node* current_param = sig->parameters;
              if (!current_param) {
@@ -438,10 +432,6 @@ void printAst(Node* node, int indent) {
              while (current_param) { 
                  printAst(current_param, indent + 2);
                  current_param = current_param->next;
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
              }
              break;
         }
@@ -492,31 +482,9 @@ void printAst(Node* node, int indent) {
              std::cout << "RETURN:" << std::endl;
              printAst(((ReturnNode*)node)->returnValue, indent + 1);
              break;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-         case NODE_FUNCTION_CALL: {
-              printf("CALL:\n");
-              FunctionCallNode* call = (FunctionCallNode*)node;
-              printAst((Node*)call->name, indent + 1);
-              std::cout << std::string((indent + 1) * 2, ' ') << "ARGS:\n";
-
-              Node* current_arg = call->arguments;
-              int arg_indent = indent + 2;
-              if (!current_arg) {
-                  std::cout << std::string(arg_indent * 2, ' ') << "(no args)\n";
-              }
-              while (current_arg) {
-                  printAst(current_arg, arg_indent);
-                  current_arg = current_arg->next;
-              }
-              break;
-         }
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
         default:
             std::cout << "Nodo Desconocido (" << node->type << ")" << std::endl;
             break;
     }
 }
+//Implementacion de todas las funciones que estan de Ast.h (FINAL)

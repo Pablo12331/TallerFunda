@@ -5,209 +5,226 @@
 #include <string>
 #include "common_types.h"
 
-typedef struct Node Node;
 
-struct Node {
-    NodeType type;
-    Node *next;
-    int line;
-    SymbolBasicType tipoCalculado;
+//Definicion de las estructuras de cada nodo de cuales se va a componer el AST (INICIO)
+
+typedef struct Node Node; 
+
+//Excepciones: BreakNode y ContinueNode son nodos sin parametros especiales, por ende ocupan la estructa principal para crearse 
+
+struct Node { //Estructura generica y fundamental(Todos los nodos especificos comparten los campos de este)
+    NodeType type; //Guarda la etiqueta del nodo
+    Node *next; //Puntero hacia el nodo siguiente
+    int line; //Campo que guarda el numero de linea donde se encuentra (Util para reportar errores)
+    SymbolBasicType calculatedType; //Guarda el tipo resultante de una expresion
 };
 
-typedef struct {
+typedef struct { //OPERACION UNITARIA (EJEM: -5 o !verdadero)
     NodeType type; 
     Node *next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    int op;
-    Node *operand;
+    SymbolBasicType calculatedType;
+    int op; //Guarda el token del operador
+    Node *operand; //Puntero al nodo de la expresion sobre la que actua
 } UnaryOpNode;
 
-typedef struct {
+typedef struct { // INT
     NodeType type;
     Node *next; 
     int line; 
-    SymbolBasicType tipoCalculado; 
-    int value;
+    SymbolBasicType calculatedType; 
+    int value; // Guarda el valor del INT
 } ConstantIntNode;
 
-typedef struct {
+typedef struct { //FLOAT
     NodeType type; 
     Node *next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    double value;
+    SymbolBasicType calculatedType;
+    double value; //Guarda el valor del FLOAT
 } ConstantFloatNode;
 
-typedef struct {
+typedef struct { //BOOL(true o false)
     NodeType type; 
     Node *next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    int value; // 0 para false, 1 para true
+    SymbolBasicType calculatedType; 
+    int value; //Guarda el valor de 1 o 0 dependiendo de si es true o false
 } ConstantBoolNode;
 
-typedef struct {
+typedef struct { //STRING (CADENA DE TEXTO)
     NodeType type; 
     Node *next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    char *sval;
+    SymbolBasicType calculatedType; 
+    char *sval; //Campo que apunta a la cadena de texto
 } StringLiteralNode;
 
-typedef struct {
+typedef struct { //NOMBRE DE UNA VARIABLE O FUNCION
     NodeType type; 
     Node *next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    char *sval;
+    SymbolBasicType calculatedType; 
+    char *sval; //Campo que apunta al nombre
 } IdentifierNode;
 
-typedef struct {
+typedef struct { //OPERACION QUE ACTUA SOBRE DOS VARIABLES
     NodeType type;
     Node *next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    int op;
-    Node *left;
-    Node *right;
+    SymbolBasicType calculatedType; 
+    int op; //Guarda el token del operador
+    Node *left; //Puntero al nodo de la expresion que esta a la izquierda
+    Node *right; //Puntero al nodo de la expresion que esta a la derecha
 } BinaryOpNode;
 
-typedef struct {
+typedef struct { //REPRESENTACION DE UNA ASIGNACION
     NodeType type; 
     Node *next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    IdentifierNode *identifier;
-    Node *expression;
+    SymbolBasicType calculatedType; 
+    IdentifierNode *identifier; //Puntero al IdentifierNode del lado izquierdo
+    Node *expression; //Puntero al nodo de la expresión del lado derecho
 } AssignmentNode;
 
-typedef struct {
+typedef struct { //DECLARACION DE VARIABLE
     NodeType type; 
     Node *next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    Node *varTypeNode;
-    IdentifierNode *identifier;
-    Node *initialValue;
+    SymbolBasicType calculatedType; 
+    Node *varTypeNode; //Puntero a un IdentifierNode con el tipo
+    IdentifierNode *identifier; //Puntero al IdentifierNode con el nombre de la variable
+    Node *initialValue; //Puntero a la expresión de inicialización (Ejem: int)
 } VarDeclarationNode;
 
-typedef struct {
+typedef struct { //IF o ELSE IF o ELSE
     NodeType type; 
     Node* next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    Node* condition;
-    Node* thenBranch;
-    Node* elseBranch;
+    SymbolBasicType calculatedType;
+    Node* condition; //Puntero a la expresion booleana de la condicion
+    Node* thenBranch; //Puntero al StatementListNode del bloque then
+    Node* elseBranch; //Puntero al statement del bloque else (Tambien puede guardar un IfNode para generar un else if)
 } IfNode;
 
-typedef struct {
+typedef struct { //WHILE
     NodeType type; 
     Node* next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    Node* condition;
-    Node* body;
+    SymbolBasicType calculatedType;
+    Node* condition; //Puntero a la expresion booleana de la condicion
+    Node* body; //Puntero hacia el cuerpo del while
 } WhileNode;
 
-typedef struct {
+typedef struct { //FOR
     NodeType type; 
     Node* next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
+    SymbolBasicType calculatedType; 
     Node* initialization;
-    Node* condition;
-    Node* increment;
-    Node* body;
+    Node* condition; //Puntero a la expresion booleana de la condicion
+    Node* increment; //Putero a la expresion de incrementacion
+    Node* body; //Puntero hacia el cuerpo del for
 } ForNode;
 
-typedef struct {
+typedef struct { //PRINT
     NodeType type; 
     Node* next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    Node* expression;
+    SymbolBasicType calculatedType;
+    Node* expression; //Puntero a la expresion imprimir
 } PrintNode;
 
-typedef struct {
+typedef struct { //READ
     NodeType type; 
     Node* next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    IdentifierNode* identifier;
+    SymbolBasicType calculatedType; 
+    IdentifierNode* identifier; //Puntero al identificador de leer
 } ReadNode;
 
-typedef struct {
+typedef struct { //ENCABEZADO DE UNA FUNCION
     NodeType type; 
     Node* next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    Node* returnType;
-    IdentifierNode* name;
-    Node* parameters;
+    SymbolBasicType calculatedType;
+    Node* returnType; //Puntero al nodo del valor que retorna
+    IdentifierNode* name; //Puntero al IdentifierNode con el nombre de la funcion
+    Node* parameters; //Puntero a la cabeza de una lista enlazada de VarDeclarationNodes que representan los parametros
 } FunctionSignatureNode;
 
-typedef struct {
+typedef struct { //DEFINICION COMPLETA DE UNA FUNCION
     NodeType type; 
     Node* next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    Node* signature;
-    Node* body;
+    SymbolBasicType calculatedType; 
+    Node* signature; //Puntero hacia la firma de la funcion
+    Node* body; //Puntero al cuerpo de la funcion
 } FunctionDefNode;
 
-typedef struct {
+typedef struct { //LLAMADA DE UNA FUNCION EN UNA EXPRESION
     NodeType type; 
     Node* next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    IdentifierNode* name;
-    Node* arguments;
+    SymbolBasicType calculatedType; 
+    IdentifierNode* name; //Puntero al IdentifierNode con el nombre de la funcion
+    Node* arguments; //Puntero a la cabeza de una lista enlazada de nodos de expresion que son los argumentos
 } FunctionCallNode;
 
-typedef struct {
+typedef struct { //RETURN
     NodeType type; 
     Node* next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    Node* returnValue;
+    SymbolBasicType calculatedType; 
+    Node* returnValue; //Puntero al valor que retorna
 } ReturnNode;
 
-typedef struct {
+typedef struct { //NODO CONTENEDOR
     NodeType type; 
     Node *next; 
     int line; 
-    SymbolBasicType tipoCalculado; // Corregido
-    std::vector<Node*>* statements;
+    SymbolBasicType calculatedType;
+    std::vector<Node*>* statements; //Un std::vector que contiene punteros a cada una de las sentencias en el bloque
 } StatementListNode;
 
-Node* createConstantIntNode(int value, int line);
-Node* createConstantFloatNode(double value, int line);
-Node* createConstantBoolNode(int value, int line);
-Node* createStringLiteralNode(char* sval, int line);
-Node* createIdentifierNode(char* sval, int line);
-Node* createUnaryOpNode(int op, Node* operand, int line);
-Node* createBinaryOpNode(int op, Node* left, Node* right, int line);
-Node* createAssignmentNode(Node* identifier, Node* expression, int line);
-Node* createStatementListNode(Node* statement, int line);
-Node* addStatementToList(Node* listNode, Node* statement);
-Node* createFunctionDefNode(Node* signature, Node* body, int line);
-Node* createVarDeclarationNode(Node* typeNode, Node* idNode, Node* initVal, int line);
-Node* createFunctionSignatureNode(Node* typeNode, Node* nameNode, Node* params, int line);
-Node* createForNode(Node* init, Node* cond, Node* incr, Node* body, int line);
-Node* createIfNode(Node* cond, Node* thenB, Node* elseB, int line);
-Node* createWhileNode(Node* cond, Node* body, int line);
-Node* createPrintNode(Node* expr, int line);
-Node* createReadNode(Node* idNode, int line);
-Node* createReturnNode(Node* retVal, int line);
-Node* createFunctionCallNode(Node* nameNode, Node* args, int line);
-Node* createParamList(Node* param);
-Node* addParamToList(Node* listNode, Node* param);
-Node* createArgList(Node* arg);
-Node* addArgToList(Node* listNode, Node* arg);
+//Definicion de las estructuras de cada nodo de cuales se va a componer el AST (FINAL)
 
-void freeAst(Node* node);
-void printAst(Node* node, int indent = 0);  
+//Declaracion de cada una de las funciones para crear la creacion de cada respectiva estructura del nodo(INICIO)
+
+Node* createConstantIntNode(int value, int line); //Declaracion para el nodo que contiene la estructura para el INT
+Node* createConstantFloatNode(double value, int line); //Declaracion para el nodo que contiene la estructura para el FLOAT
+Node* createConstantBoolNode(int value, int line); //Declaracion para el nodo que contiene la estructura para variables de tipo BOOL
+Node* createStringLiteralNode(char* sval, int line); //Declaracion para el nodo que contiene la estructura para los STRINGS
+Node* createIdentifierNode(char* sval, int line); //Declaracion para el nodo que contiene la estructura para guardar el nombre de una VARIABLE o FUNCION
+Node* createUnaryOpNode(int op, Node* operand, int line); //Declaracion para el nodo que contiene la estructura para guardar la OPERACION UNARIA
+Node* createBinaryOpNode(int op, Node* left, Node* right, int line); //Declaracion para el nodo que contiene la estructura para guardar la OPERACION SOBRE DOS VARIABLES
+Node* createAssignmentNode(Node* identifier, Node* expression, int line); //Declaracion para el nodo que contiene la estructura para la REPRESENTACION DE UNA ASIGNACION
+Node* createStatementListNode(Node* statement, int line); //Declaracion para el nodo CONTENEDOR
+Node* createFunctionDefNode(Node* signature, Node* body, int line); //Declaracion para el nodo que contiene la estructura COMPLETA DE UNA FUNCION
+Node* createVarDeclarationNode(Node* typeNode, Node* idNode, Node* initVal, int line); //Declaracion para el nodo que contiene la estructura para la DECLARACION DE VARIABLES
+Node* createFunctionSignatureNode(Node* typeNode, Node* nameNode, Node* params, int line); //Declaracion para el nodo que contiene la estructura para el ENCABEZADO DE UNA FUNCION
+Node* createForNode(Node* init, Node* cond, Node* incr, Node* body, int line); //Declaracion para el nodo que contiene la estructura del FOR
+Node* createIfNode(Node* cond, Node* thenB, Node* elseB, int line); //Declaracion para el nodo que contiene la estructura del IF
+Node* createWhileNode(Node* cond, Node* body, int line); //Declaracion para el nodo que contiene la estructura del WHILE
+Node* createPrintNode(Node* expr, int line); //Declaracion para el nodo que contiene la estructura del PRINT
+Node* createReadNode(Node* idNode, int line); //Declaracion para el nodo que contiene la estructura del READ
+Node* createReturnNode(Node* retVal, int line); //Declaracion para el nodo que contiene la estructura del RETURN
+Node* createFunctionCallNode(Node* nameNode, Node* args, int line); //Declaracion para el nodo que contiene la estructura para la LLAMADA DE UNA FUNCION EN UNA EXPRESION
+Node* createBreakNode(int line); //Declaracion para el nodo que contiene la estructura del BREAK
+Node* createContinueNode(int line); //Declaracion para el nodo que contiene la estructura del CONTINUE
+
+//Declaracion de cada una de las funciones para crear la creacion de cada respectiva estructura del nodo(FINAL)
+
+Node* addParamToList(Node* listNode, Node* param); //Funcion auxiliar para añadir un nuevo nodo a la ParamList
+Node* createParamList(Node* param); //Funcion para crear un ParamList
+
+Node* addArgToList(Node* listNode, Node* arg); //Funcion auxiliar para añadir un nuevo nodo a la Arglist
+Node* createArgList(Node* arg); //Funcion para crear un ArgList
+
+Node* addStatementToList(Node* listNode, Node* statement); //funcion auxiliar para añadir un nuevo nodo a la StatementList
+
+void freeAst(Node* node); //Funcion para liberar el AST
+void printAst(Node* node, int indent = 0); //Funcion para mostrar por consola el AST creado
+
 
 #endif

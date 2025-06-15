@@ -1,19 +1,21 @@
 %{
 #include <string.h>
 #include <stdlib.h>
-#include "parser.tab.h" 
-#include "Ast.h"   
+#include "parser.tab.h"
+#include "Ast.h" 
     
 %}
 
-%option noyywrap
+%option noyywrap 
 %option yylineno
 
 %%
 
 "//"[^\n]* {}
 
+
 "if"       { return IF; }
+"unless"   { return UNLESS; }
 "else"     { return ELSE; }
 "while"    { return WHILE; }
 "for"      { return FOR; }
@@ -27,12 +29,15 @@
 "bool"     { return BOOL_TYPE; }
 "true"     { yylval.ival = 1; return TRUE_LITERAL; } 
 "false"    { yylval.ival = 0; return FALSE_LITERAL; }
+"break"    { return BREAK; }
+"continue" { return CONTINUE; }
 
 "{"        { return LBRACE; }
 "}"        { return RBRACE; }
 "("        { return LPAREN; }
 ")"        { return RPAREN; }
 ";"        { return SEMICOLON; }
+"|>"       { return PIPE; }
 "="        { return ASSIGN; }
 ","        { return ','; }
 
@@ -40,6 +45,11 @@
 "-"        { return MINUS; }
 "*"        { return MULT; }
 "/"        { return DIV; }
+
+"+="       { return PLUS_ASSIGN; }
+"-="       { return MINUS_ASSIGN; }
+"*="       { return MULT_ASSIGN; }
+"/="       { return DIV_ASSIGN; }
 
 "=="       { return EQ; }
 "!="       { return NE; }
@@ -93,7 +103,6 @@
     yylval.sval = processed_sval;
     return STRING_LITERAL;
 }
-
 
 [ \t\r\n]+ { }
 
