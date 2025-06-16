@@ -4,9 +4,9 @@ Este proyecto es un compilador completo desarrollado como parte del taller de Co
 El programa traduce un lenguaje de programación propio y de alto nivel a código C++ ejecutable. 
 El proceso de compilación abarca el análisis léxico, sintáctico, semántico y la generación de código.
 
-## ** Características del Lenguaje**
+## **💻 Características del Lenguaje**
 
-Nuestro lenguaje está diseñado para ser simple pero potente, incluyendo las siguientes características requeridas y adicionales:
+Nuestro lenguaje está diseñado para ser simple pero potente, incluyendo las siguientes características que fueron requeridas y algunas otras que son adicionales:
 
 * **Declaración de Variables**: Soporte para tipos `int`, `float`, `string` y `bool`.
 * **Operadores**:
@@ -35,7 +35,7 @@ Nuestro lenguaje está diseñado para ser simple pero potente, incluyendo las si
 
 ## **📁 Estructura del Proyecto**
 
-El compilador está organizado en módulos, cada uno responsable de una fase específica del proceso:
+El compilador está organizado en módulos, donde cada una es responsable de una fase específica del proceso:
 
 * `lexer.l`: Contiene las reglas de **Flex** para el análisis léxico y la generación de tokens.
 * `parser.y`: Contiene las reglas gramaticales de **Bison**, las acciones para construir el AST y el manejo de errores sintácticos.
@@ -67,7 +67,7 @@ El compilador está organizado en módulos, cada uno responsable de una fase esp
 3.  **Ejecutar el Compilador**: Para compilar un archivo de tu lenguaje (p. ej., `entrada.txt`), usa el siguiente comando:
 
     ```bash
-    ./Compilador < entrada.txt
+    ./Compilador entrada.txt
     ```
     Esto generará un archivo `salida.cpp` con el código C++ traducido.
 
@@ -103,13 +103,13 @@ El proceso de compilación se divide en las siguientes etapas secuenciales:
 
 ## **Prueba completa del las Funcionalidades que tiene el codigo**
 
-// Este programa calcula el factorial de una serie de números
-// y demuestra varias características del lenguaje.
-
-// 1. Declaración Múlti-variables
-string separador, mensaje_inicial;
-separador = "--------------------";
-mensaje_inicial = "Iniciando demostracion del lenguaje...";
+<details>
+<summary>Haz clic aquí para ver el código de ejemplo</summary>
+```cpp
+// 1. Declaración Múltiple de Variables
+string SEPARADOR, MENSAJE_INICIAL;
+SEPARADOR = "--------------------";
+MENSAJE_INICIAL = "Iniciando demostracion del lenguaje...";
 
 // 2. Definición de una Función Recursiva (Factorial)
 int factorial(int n) {
@@ -125,8 +125,8 @@ int factorial(int n) {
 
 // -- El código de aquí en adelante se generara dentro de main() --
 
-print(mensaje_inicial);
-print(separador);
+print(MENSAJE_INICIAL);
+print(SEPARADOR);
 
 // 4. Bucle FOR con declaración de variable interna, BREAK y CONTINUE
 print("Bucle FOR del 0 al 9, pero se salta el 3 y se detiene en 7:");
@@ -140,7 +140,7 @@ for (int i = 0; i < 10; i = i + 1) {
     print(i);
 }
 
-print(separador);
+print(SEPARADOR);
 
 // 7. Operadores de Asignacion Compuesta (+=)
 int acumulador = 100;
@@ -148,7 +148,7 @@ acumulador += 50; // Ahora acumulador es 150
 print("Prueba de '+=', valor esperado 150:");
 print(acumulador);
 
-print(separador);
+print(SEPARADOR);
 
 // 8. Sentencia UNLESS
 print("Prueba de 'unless':");
@@ -156,7 +156,7 @@ unless (acumulador == 100) {
     print("Correcto, 'unless' se ejecuto porque el acumulador NO es 100.");
 }
 
-print(separador);
+print(SEPARADOR);
 
 // 9. Bucle WHILE y Lectura desde Teclado (READ)
 print("Escribe 'salir' para terminar el bucle while.");
@@ -167,18 +167,18 @@ while (entrada != "salir") {
     print("Comando recibido: " + entrada);
 }
 
-print(separador);
+print(SEPARADOR);
 
 // 10. Operador de Tuberia (|>)
 print("Prueba del Operador de Tuberia con factorial de 6:");
 6 |> factorial |> print; // => print(factorial(6))
 
-print(separador);
+print(SEPARADOR);
 print("¡Demostracion completada!");
 
 ## **✒️ Autores**
 
 Este proyecto fue desarrollado por:
 
-* Benjamín Guillermo Andres Garces Zarate                                                   
-* Pablo Andres Jorquera Herrera
+* Benjamín Guillermo Andrés Garces Zarate                                                   
+* Pablo Andrés Jorquera Herrera
