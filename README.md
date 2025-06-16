@@ -1,4 +1,4 @@
-# TallerFunda# **Compilador para un Lenguaje de Programación Propio(Frankenstein)**
+# TallerFunda# **Compilador para un Lenguaje de Programación Propio (Frankenstein)**
 
 Este proyecto es un compilador completo desarrollado como parte del taller de Compiladores. 
 El programa traduce un lenguaje de programación propio y de alto nivel a código C++ ejecutable. 
