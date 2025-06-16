@@ -4,7 +4,7 @@ Este proyecto es un compilador completo desarrollado como parte del taller de Co
 El programa traduce un lenguaje de programación propio y de alto nivel a código C++ ejecutable. 
 El proceso de compilación abarca el análisis léxico, sintáctico, semántico y la generación de código.
 
-## **💻 Características del Lenguaje**
+## **Características del Lenguaje**
 
 Nuestro lenguaje está diseñado para ser simple pero potente, incluyendo las siguientes características que fueron requeridas y algunas otras que son adicionales:
 
@@ -24,7 +24,7 @@ Nuestro lenguaje está diseñado para ser simple pero potente, incluyendo las si
 
 ---
 
-## **🛠️ Tecnologías Utilizadas**
+## **Tecnologías Utilizadas**
 
 * **Análisis Léxico**: `Flex`
 * **Análisis Sintáctico**: `Bison`
@@ -33,7 +33,7 @@ Nuestro lenguaje está diseñado para ser simple pero potente, incluyendo las si
 
 ---
 
-## **📁 Estructura del Proyecto**
+## **Estructura del Proyecto**
 
 El compilador está organizado en módulos, donde cada una es responsable de una fase específica del proceso:
 
@@ -47,11 +47,11 @@ El compilador está organizado en módulos, donde cada una es responsable de una
 
 ---
 
-## **🚀 Cómo Compilar y Ejecutar**
+## **Cómo Compilar y Ejecutar**
 
-1.  **Requisitos**: Asegúrate de tener `flex`, `bison` y un compilador de C++ como `g++` instalados.
+1.  **Requisitos**: Se necesita `flex`, `bison` y un compilador de C++ como `g++` instalados.
 
-2.  **Compilar el Compilador**: Abre una terminal en el directorio del proyecto y ejecuta los siguientes comandos en orden:
+2.  **Compilar el Compilador**: Abrir una terminal en el directorio del proyecto y ejecutar los siguientes comandos en orden:
 
     ```bash
     # 1. Generar el parser con Bison (crea parser.tab.c y parser.tab.h)
@@ -64,7 +64,7 @@ El compilador está organizado en módulos, donde cada una es responsable de una
     g++ -std=c++17 parser.tab.c lex.yy.c Ast.cpp symbol_table.cpp type_checker.cpp code_generator.cpp -o Compilador -lfl
     ```
 
-3.  **Ejecutar el Compilador**: Para compilar un archivo de tu lenguaje (p. ej., `entrada.txt`), usa el siguiente comando:
+3.  **Ejecutar el Compilador**: Para compilar un archivo (p. ej., `entrada.txt`), usar el siguiente comando:
 
     ```bash
     ./Compilador entrada.txt
@@ -78,10 +78,10 @@ El compilador está organizado en módulos, donde cada una es responsable de una
     ./mi_programa
     ```
 
-(El archivo de texto "entrada.txt" contiene una demostracion de la gran mayoria de caracteristicas del lengueje)
+(El archivo de texto "entrada.txt" contiene una demostracion de la gran mayoria de caracteristicas del lenguaje)
 ---
 
-## **⚙️ Flujo de Compilación: ¿Cómo Funciona?**
+## **Flujo de Compilación: ¿Cómo Funciona?**
 
 El proceso de compilación se divide en las siguientes etapas secuenciales:
 
@@ -102,9 +102,9 @@ El proceso de compilación se divide en las siguientes etapas secuenciales:
     
 ---
 
-## **✒️ Autores**
+## **Autores**
 
 Este proyecto fue desarrollado por:
 
-* Benjamín Guillermo Andrés Garces Zarate                                                   
+* Benjamín Guillermo Andrés Garcés Zárate                                                   
 * Pablo Andrés Jorquera Herrera
