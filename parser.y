@@ -172,14 +172,17 @@ declarator_list_actual:
     }
     ;
 
-//Es el que hace el principal trabajo, lee que tipo de variable es (int, string, etc.), crea un VarDeclarationNode 
+//Es el que hace el principal trabajo, lee que tipo de variable es (int, string, etc.), crea un VarDeclarationNode
+//Se crea una copia del tipo de nodo para el caso de declaracion de multivariable
 //y lo registra en la tabla de simbolos
 declarator_actual: 
     IDENTIFIER
     {
         Node* id_node_for_ast = createIdentifierNode($1, yylineno);
-        $$ = createVarDeclarationNode(current_declaration_type_node, id_node_for_ast, nullptr, yylineno);
-        if (!c_insert_variable($1, current_declaration_type_node, yylineno, $$)) 
+        Node* type_copy = duplicateTypeNode(current_declaration_type_node);
+        $$ = createVarDeclarationNode(type_copy, id_node_for_ast, nullptr, yylineno);
+
+        if (!c_insert_variable($1, type_copy, yylineno, $$)) 
         {
             yyerror(("Error Semántico: Re-declaración de variable '" + std::string($1) + "'").c_str());
         }
@@ -187,8 +190,10 @@ declarator_actual:
     | IDENTIFIER ASSIGN expression
     {
         Node* id_node_for_ast = createIdentifierNode($1, yylineno);
-        $$ = createVarDeclarationNode(current_declaration_type_node, id_node_for_ast, $3, yylineno);
-        if (!c_insert_variable($1, current_declaration_type_node, yylineno, $$)) 
+        Node* type_copy = duplicateTypeNode(current_declaration_type_node);
+        $$ = createVarDeclarationNode(type_copy, id_node_for_ast, $3, yylineno);
+
+        if (!c_insert_variable($1, type_copy, yylineno, $$)) 
         {
             yyerror(("Error Semántico: Re-declaración de variable '" + std::string($1) + "'").c_str());
         }

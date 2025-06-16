@@ -7,7 +7,7 @@
 #include "parser.tab.h"
 #include "symbol_table.h"
 
-//Implementacion de todas las funciones que estan de Ast.h (INICIO)
+//Implementacion de todas las funciones que estan en Ast.h (INICIO)
 
 //La sentencia malloc(sizeof(VarDeclarationNode)) ayuda a reservar la cantidad exacta de memoria para el tipo de nodo que estamos utilizando
 //la sentencia ((Node*)n)->calculatedType = SYM_TYPE_UNCHECKED inicializa al tipo calculado a un estado "no verificado"
@@ -299,34 +299,103 @@ Node* addArgToList(Node* listNode, Node* arg) {
 }
 
 void freeAst(Node* node) {
-    if (!node) return;
-
-    switch (node->type) {
-        case NODE_BINARY_OP: freeAst(((BinaryOpNode*)node)->left); freeAst(((BinaryOpNode*)node)->right); break;
-        case NODE_UNARY_OP: freeAst(((UnaryOpNode*)node)->operand); break;
-        case NODE_ASSIGNMENT: freeAst((Node*)((AssignmentNode*)node)->identifier); freeAst(((AssignmentNode*)node)->expression); break;
-        case NODE_IDENTIFIER: if(((IdentifierNode*)node)->sval) free(((IdentifierNode*)node)->sval); break;
-        case NODE_TYPE: if(((IdentifierNode*)node)->sval) free(((IdentifierNode*)node)->sval); break;
-        case NODE_VAR_DECLARATION: freeAst(((VarDeclarationNode*)node)->varTypeNode); freeAst((Node*)((VarDeclarationNode*)node)->identifier); freeAst(((VarDeclarationNode*)node)->initialValue); break;
-        case NODE_FUNC_SIG: freeAst(((FunctionSignatureNode*)node)->returnType); freeAst((Node*)((FunctionSignatureNode*)node)->name); freeAst(((FunctionSignatureNode*)node)->parameters); break;
-        case NODE_FUNCTION_DEF: freeAst(((FunctionDefNode*)node)->signature); freeAst(((FunctionDefNode*)node)->body); break;
-        case NODE_FOR: freeAst(((ForNode*)node)->initialization); freeAst(((ForNode*)node)->condition); freeAst(((ForNode*)node)->increment); freeAst(((ForNode*)node)->body); break;
-        case NODE_IF: freeAst(((IfNode*)node)->condition); freeAst(((IfNode*)node)->thenBranch); freeAst(((IfNode*)node)->elseBranch); break;
-        case NODE_WHILE: freeAst(((WhileNode*)node)->condition); freeAst(((WhileNode*)node)->body); break;
-        case NODE_PRINT: freeAst(((PrintNode*)node)->expression); break;
-        case NODE_READ: freeAst((Node*)((ReadNode*)node)->identifier); break;
-        case NODE_RETURN: freeAst(((ReturnNode*)node)->returnValue); break;
-        case NODE_FUNCTION_CALL: freeAst((Node*)((FunctionCallNode*)node)->name); freeAst(((FunctionCallNode*)node)->arguments); break;
-        case NODE_STATEMENT_LIST: { StatementListNode* list = (StatementListNode*)node; if (list->statements) { for (Node* stmt : *list->statements) { freeAst(stmt); } delete list->statements;} } break;
-        case NODE_CONSTANT_INT: break;
-        case NODE_CONSTANT_FLOAT: break;
-        case NODE_CONSTANT_BOOL: break;
-        case NODE_CONSTANT_STRING: if(((StringLiteralNode*)node)->sval) free(((StringLiteralNode*)node)->sval); break;
-        default: break;
+    // fprintf(stderr, "[DEBUG] Liberando nodo de tipo: %d en línea %d\n", node ? node->type : -1, node ? node->line : -1);
+    
+    if (!node) {
+        return;
     }
 
-    freeAst(node->next);
+    switch (node->type) {
+        case NODE_UNARY_OP:
+            freeAst(((UnaryOpNode*)node)->operand);
+            break;
+        case NODE_BINARY_OP:
+            freeAst(((BinaryOpNode*)node)->left);
+            freeAst(((BinaryOpNode*)node)->right);
+            break;
+        case NODE_ASSIGNMENT:
+            freeAst((Node*)((AssignmentNode*)node)->identifier);
+            freeAst(((AssignmentNode*)node)->expression);
+            break;
+        case NODE_VAR_DECLARATION:
+            freeAst(((VarDeclarationNode*)node)->varTypeNode);
+            freeAst((Node*)((VarDeclarationNode*)node)->identifier);
+            freeAst(((VarDeclarationNode*)node)->initialValue);
+            break;
+        case NODE_FUNCTION_DEF:
+            freeAst(((FunctionDefNode*)node)->signature);
+            freeAst(((FunctionDefNode*)node)->body);
+            break;
+        case NODE_IF:
+            freeAst(((IfNode*)node)->condition);
+            freeAst(((IfNode*)node)->thenBranch);
+            freeAst(((IfNode*)node)->elseBranch);
+            break;
+        case NODE_WHILE:
+            freeAst(((WhileNode*)node)->condition);
+            freeAst(((WhileNode*)node)->body);
+            break;
+        case NODE_FOR:
+            freeAst(((ForNode*)node)->initialization);
+            freeAst(((ForNode*)node)->condition);
+            freeAst(((ForNode*)node)->increment);
+            freeAst(((ForNode*)node)->body);
+            break;
+        case NODE_PRINT:
+            freeAst(((PrintNode*)node)->expression);
+            break;
+        case NODE_READ:
+            freeAst((Node*)((ReadNode*)node)->identifier);
+            break;
+        case NODE_RETURN:
+            freeAst(((ReturnNode*)node)->returnValue);
+            break;
+        case NODE_FUNC_SIG:
+            freeAst(((FunctionSignatureNode*)node)->returnType);
+            freeAst((Node*)((FunctionSignatureNode*)node)->name);
+            freeAst(((FunctionSignatureNode*)node)->parameters);
+            break;
+        case NODE_FUNCTION_CALL:
+            freeAst((Node*)((FunctionCallNode*)node)->name);
+            freeAst(((FunctionCallNode*)node)->arguments); 
+            break;
+        case NODE_STATEMENT_LIST: {
+            StatementListNode* list = (StatementListNode*)node;
+            if (list->statements) {
+                for (Node* stmt : *list->statements) {
+                    freeAst(stmt);
+                }
+                delete list->statements; 
+            }
+            break;
+        }
+        case NODE_IDENTIFIER:
+        case NODE_TYPE:
+            if (((IdentifierNode*)node)->sval) {
+                free(((IdentifierNode*)node)->sval);
+            }
+            break;
+        case NODE_CONSTANT_STRING:
+            if (((StringLiteralNode*)node)->sval) {
+                free(((StringLiteralNode*)node)->sval);
+            }
+            break;
+        // Los casos base no tienen hijos ni memoria dinámica propia.
+        case NODE_CONSTANT_INT:
+        case NODE_CONSTANT_FLOAT:
+        case NODE_CONSTANT_BOOL:
+        case NODE_BREAK:
+        case NODE_CONTINUE:
+        default:
+            break;
+    }
 
+    // Liberar la lista de nodos hermanos (usado para parámetros y argumentos)
+    if (node->next) {
+        freeAst(node->next);
+    }
+
+    // Finalmente, liberar el nodo actual
     free(node);
 }
 
@@ -381,30 +450,30 @@ void printAst(Node* node, int indent) {
             printAst(((AssignmentNode*)node)->expression, indent + 1);
             break;
         case NODE_FUNCTION_CALL:
-             std::cout << "CALL:" << CalcTypeStr << std::endl;
-             { 
-                 FunctionCallNode* call = (FunctionCallNode*)node;
-                 printAst((Node*)call->name, indent + 1); 
-                 std::cout << std::string((indent + 1) * 2, ' ') << "ARGS:" << std::endl;
-                 Node* current_arg = call->arguments;
-                 if (!current_arg) {
-                     std::cout << std::string((indent + 2) * 2, ' ') << "(no args)" << std::endl;
-                 }
-                 while (current_arg) {
-                     printAst(current_arg, indent + 2); 
-                     current_arg = current_arg->next;
-                 }
-             }
-             break;
+            std::cout << "CALL:" << CalcTypeStr << std::endl;
+            { 
+                FunctionCallNode* call = (FunctionCallNode*)node;
+                printAst((Node*)call->name, indent + 1); 
+                std::cout << std::string((indent + 1) * 2, ' ') << "ARGS:" << std::endl;
+                Node* current_arg = call->arguments;
+                if (!current_arg) {
+                    std::cout << std::string((indent + 2) * 2, ' ') << "(no args)" << std::endl;
+                }
+                while (current_arg) {
+                    printAst(current_arg, indent + 2); 
+                    current_arg = current_arg->next;
+                }
+            }
+            break;
         case NODE_VAR_DECLARATION:
-             std::cout << "VAR_DECL:" << std::endl;
-             printAst(((VarDeclarationNode*)node)->varTypeNode, indent + 1);
-             printAst((Node*)((VarDeclarationNode*)node)->identifier, indent + 1); 
-             if (((VarDeclarationNode*)node)->initialValue) {
-                 std::cout << std::string((indent + 1) * 2, ' ') << "INIT:" << std::endl;
-                 printAst(((VarDeclarationNode*)node)->initialValue, indent + 2); 
-             }
-             break;
+            std::cout << "VAR_DECL:" << std::endl;
+            printAst(((VarDeclarationNode*)node)->varTypeNode, indent + 1);
+            printAst((Node*)((VarDeclarationNode*)node)->identifier, indent + 1); 
+            if (((VarDeclarationNode*)node)->initialValue) {
+                std::cout << std::string((indent + 1) * 2, ' ') << "INIT:" << std::endl;
+                printAst(((VarDeclarationNode*)node)->initialValue, indent + 2); 
+            }
+            break;
         case NODE_STATEMENT_LIST: {
             std::cout << "STMT_LIST:" << std::endl;
             StatementListNode* list = (StatementListNode*)node;
@@ -418,73 +487,91 @@ void printAst(Node* node, int indent) {
             break;
         }
         case NODE_FUNC_SIG: {
-             std::cout << "FUNC_SIG:" << std::endl;
-             FunctionSignatureNode* sig = (FunctionSignatureNode*)node;
-             std::cout << std::string((indent + 1) * 2, ' ') << "RET_TYPE:" << std::endl;
-             printAst(sig->returnType, indent + 2);
-             std::cout << std::string((indent + 1) * 2, ' ') << "NAME:" << std::endl;
-             printAst((Node*)sig->name, indent + 2);
-             std::cout << std::string((indent + 1) * 2, ' ') << "PARAMS:" << std::endl;
-             Node* current_param = sig->parameters;
-             if (!current_param) {
-                 std::cout << std::string((indent + 2) * 2, ' ') << "(no params)" << std::endl;
-             }
-             while (current_param) { 
-                 printAst(current_param, indent + 2);
-                 current_param = current_param->next;
-             }
+            std::cout << "FUNC_SIG:" << std::endl;
+            FunctionSignatureNode* sig = (FunctionSignatureNode*)node;
+            std::cout << std::string((indent + 1) * 2, ' ') << "RET_TYPE:" << std::endl;
+            printAst(sig->returnType, indent + 2);
+            std::cout << std::string((indent + 1) * 2, ' ') << "NAME:" << std::endl;
+            printAst((Node*)sig->name, indent + 2);
+            std::cout << std::string((indent + 1) * 2, ' ') << "PARAMS:" << std::endl;
+            Node* current_param = sig->parameters;
+            if (!current_param) {
+                std::cout << std::string((indent + 2) * 2, ' ') << "(no params)" << std::endl;
+            }
+            while (current_param) { 
+                printAst(current_param, indent + 2);
+                current_param = current_param->next;
+            }
              break;
         }
         case NODE_FUNCTION_DEF:
-             std::cout << "FUNC_DEF:" << std::endl;
-             printAst(((FunctionDefNode*)node)->signature, indent + 1);
-             std::cout << std::string((indent + 1) * 2, ' ') << "BODY:" << std::endl;
-             printAst(((FunctionDefNode*)node)->body, indent + 2); 
-             break;
-         case NODE_FOR:
-             std::cout << "FOR:" << std::endl;
-             std::cout << std::string((indent + 1) * 2, ' ') << "INIT:" << std::endl;
-             printAst(((ForNode*)node)->initialization, indent + 2);
-             std::cout << std::string((indent + 1) * 2, ' ') << "COND:" << std::endl;
-             printAst(((ForNode*)node)->condition, indent + 2); 
-             std::cout << std::string((indent + 1) * 2, ' ') << "INCR:" << std::endl;
-             printAst(((ForNode*)node)->increment, indent + 2);
-             std::cout << std::string((indent + 1) * 2, ' ') << "BODY:" << std::endl;
-             printAst(((ForNode*)node)->body, indent + 2);
-             break;
-         case NODE_IF:
-             std::cout << "IF:" << std::endl;
-             std::cout << std::string((indent + 1) * 2, ' ') << "COND:" << std::endl;
-             printAst(((IfNode*)node)->condition, indent + 2); 
-             std::cout << std::string((indent + 1) * 2, ' ') << "THEN:" << std::endl;
-             printAst(((IfNode*)node)->thenBranch, indent + 2);
-             if (((IfNode*)node)->elseBranch) {
-                 std::cout << std::string((indent + 1) * 2, ' ') << "ELSE:" << std::endl;
-                 printAst(((IfNode*)node)->elseBranch, indent + 2);
-             }
-             break;
-         case NODE_WHILE:
-             std::cout << "WHILE:" << std::endl;
-             std::cout << std::string((indent + 1) * 2, ' ') << "COND:" << std::endl;
-             printAst(((WhileNode*)node)->condition, indent + 2); 
-             std::cout << std::string((indent + 1) * 2, ' ') << "BODY:" << std::endl;
-             printAst(((WhileNode*)node)->body, indent + 2);
-             break;
-         case NODE_PRINT:
-             std::cout << "PRINT:" << std::endl;
-             printAst(((PrintNode*)node)->expression, indent + 1); 
-             break;
-         case NODE_READ:
-             std::cout << "READ:" << std::endl;
-             printAst((Node*)((ReadNode*)node)->identifier, indent + 1);
-             break;
-         case NODE_RETURN:
-             std::cout << "RETURN:" << std::endl;
-             printAst(((ReturnNode*)node)->returnValue, indent + 1);
-             break;
+            std::cout << "FUNC_DEF:" << std::endl;
+            printAst(((FunctionDefNode*)node)->signature, indent + 1);
+            std::cout << std::string((indent + 1) * 2, ' ') << "BODY:" << std::endl;
+            printAst(((FunctionDefNode*)node)->body, indent + 2); 
+            break;
+        case NODE_FOR:
+            std::cout << "FOR:" << std::endl;
+            std::cout << std::string((indent + 1) * 2, ' ') << "INIT:" << std::endl;
+            printAst(((ForNode*)node)->initialization, indent + 2);
+            std::cout << std::string((indent + 1) * 2, ' ') << "COND:" << std::endl;
+            printAst(((ForNode*)node)->condition, indent + 2); 
+            std::cout << std::string((indent + 1) * 2, ' ') << "INCR:" << std::endl;
+            printAst(((ForNode*)node)->increment, indent + 2);
+            std::cout << std::string((indent + 1) * 2, ' ') << "BODY:" << std::endl;
+            printAst(((ForNode*)node)->body, indent + 2);
+            break;
+        case NODE_IF:
+            std::cout << "IF:" << std::endl;
+            std::cout << std::string((indent + 1) * 2, ' ') << "COND:" << std::endl;
+            printAst(((IfNode*)node)->condition, indent + 2); 
+            std::cout << std::string((indent + 1) * 2, ' ') << "THEN:" << std::endl;
+            printAst(((IfNode*)node)->thenBranch, indent + 2);
+            if (((IfNode*)node)->elseBranch) {
+                std::cout << std::string((indent + 1) * 2, ' ') << "ELSE:" << std::endl;
+                printAst(((IfNode*)node)->elseBranch, indent + 2);
+            }
+            break;
+        case NODE_WHILE:
+            std::cout << "WHILE:" << std::endl;
+            std::cout << std::string((indent + 1) * 2, ' ') << "COND:" << std::endl;
+            printAst(((WhileNode*)node)->condition, indent + 2); 
+            std::cout << std::string((indent + 1) * 2, ' ') << "BODY:" << std::endl;
+            printAst(((WhileNode*)node)->body, indent + 2);
+            break;
+        case NODE_PRINT:
+            std::cout << "PRINT:" << std::endl;
+            printAst(((PrintNode*)node)->expression, indent + 1); 
+            break;
+        case NODE_READ:
+            std::cout << "READ:" << std::endl;
+            printAst((Node*)((ReadNode*)node)->identifier, indent + 1);
+            break;
+        case NODE_RETURN:
+            std::cout << "RETURN:" << std::endl;
+            printAst(((ReturnNode*)node)->returnValue, indent + 1);
+            break;
+        case NODE_BREAK:
+            std::cout << "BREAK_STMT" << std::endl;
+            break;
+        case NODE_CONTINUE:
+            std::cout << "CONTINUE_STMT" << std::endl;
+            break;
         default:
             std::cout << "Nodo Desconocido (" << node->type << ")" << std::endl;
             break;
     }
 }
-//Implementacion de todas las funciones que estan de Ast.h (FINAL)
+Node* duplicateTypeNode(Node* original) {
+    if (!original || original->type != NODE_TYPE) {
+        return nullptr;
+    }
+    IdentifierNode* original_id = (IdentifierNode*)original;
+
+    Node* new_node = createIdentifierNode(strdup(original_id->sval), original->line);
+
+    new_node->type = NODE_TYPE;
+    
+    return new_node;
+}
+//Implementacion de todas las funciones que estan en Ast.h (FINAL)

@@ -223,6 +223,8 @@ Node* createArgList(Node* arg); //Funcion para crear un ArgList
 
 Node* addStatementToList(Node* listNode, Node* statement); //funcion auxiliar para añadir un nuevo nodo a la StatementList
 
+Node* duplicateTypeNode(Node* original); //Crear duplicacion de nodo de tipo para evitar la doble liberacion en la declaracion de multivariable
+
 void freeAst(Node* node); //Funcion para liberar el AST
 void printAst(Node* node, int indent = 0); //Funcion para mostrar por consola el AST creado
 
