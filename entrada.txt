@@ -1,11 +1,11 @@
 // ----------------------------------------------------
-// --      PROGRAMA DE DEMOSTRACION COMPLETO         --
+// --      PROGRAMA DE DEMOSTRACION "COMPLETA"        --
 // ----------------------------------------------------
 
-// 1. Declaración Múltiple de Variables
-string SEPARADOR, MENSAJE_INICIAL;
-SEPARADOR = "--------------------";
-MENSAJE_INICIAL = "Iniciando demostracion del lenguaje...";
+// 1. Declaración de Multi-Variables
+string separador, mensaje_inicial;
+separador = "--------------------";
+mensaje_inicial = "Iniciando demostracion del lenguaje...";
 
 // 2. Definición de una Función Recursiva (Factorial)
 int factorial(int n) {
@@ -19,12 +19,12 @@ int factorial(int n) {
     }
 }
 
-// -- El código de aquí en adelante se generara dentro de main() --
+// -- El código de aqui en adelante se generara dentro de main() --
 
-print(MENSAJE_INICIAL);
-print(SEPARADOR);
+print(mensaje_inicial);
+print(separador);
 
-// 4. Bucle FOR con declaración de variable interna, BREAK y CONTINUE
+// 4. Bucle FOR con declaracion de variable interna, BREAK y CONTINUE
 print("Bucle FOR del 0 al 9, pero se salta el 3 y se detiene en 7:");
 for (int i = 0; i < 10; i = i + 1) {
     if (i == 3) {
@@ -36,7 +36,7 @@ for (int i = 0; i < 10; i = i + 1) {
     print(i);
 }
 
-print(SEPARADOR);
+print(separador);
 
 // 7. Operadores de Asignacion Compuesta (+=)
 int acumulador = 100;
@@ -44,7 +44,7 @@ acumulador += 50; // Ahora acumulador es 150
 print("Prueba de '+=', valor esperado 150:");
 print(acumulador);
 
-print(SEPARADOR);
+print(separador);
 
 // 8. Sentencia UNLESS
 print("Prueba de 'unless':");
@@ -52,7 +52,7 @@ unless (acumulador == 100) {
     print("Correcto, 'unless' se ejecuto porque el acumulador NO es 100.");
 }
 
-print(SEPARADOR);
+print(separador);
 
 // 9. Bucle WHILE y Lectura desde Teclado (READ)
 print("Escribe 'salir' para terminar el bucle while.");
@@ -63,11 +63,11 @@ while (entrada != "salir") {
     print("Comando recibido: " + entrada);
 }
 
-print(SEPARADOR);
+print(separador);
 
 // 10. Operador de Tuberia (|>)
 print("Prueba del Operador de Tuberia con factorial de 6:");
 6 |> factorial |> print; // => print(factorial(6))
 
-print(SEPARADOR);
+print(separador);
 print("¡Demostracion completada!");
