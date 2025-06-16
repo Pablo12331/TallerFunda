@@ -78,6 +78,7 @@ El compilador está organizado en módulos, donde cada una es responsable de una
     ./mi_programa
     ```
 
+(El archivo de texto "entrada.txt" contiene una demostracion de la gran mayoria de caracteristicas del lengueje)
 ---
 
 ## **⚙️ Flujo de Compilación: ¿Cómo Funciona?**
@@ -98,85 +99,9 @@ El proceso de compilación se divide en las siguientes etapas secuenciales:
 
 4.  **Fase 4: Generación de Código**
     * Si el análisis semántico finaliza sin errores, el **generador de código** (`code_generator.cpp`) recorre el AST validado y traduce cada nodo a su equivalente en código C++, escribiéndolo en un archivo de salida (`salida.cpp`).
-
+    
 ---
 
-## **Prueba completa del las Funcionalidades que tiene el codigo**
-
-<details>
-<summary>Haz clic aquí para ver el código de ejemplo</summary>
-```cpp
-// 1. Declaración Múltiple de Variables
-string SEPARADOR, MENSAJE_INICIAL;
-SEPARADOR = "--------------------";
-MENSAJE_INICIAL = "Iniciando demostracion del lenguaje...";
-
-// 2. Definición de una Función Recursiva (Factorial)
-int factorial(int n) {
-    // 3. Sentencia IF / ELSE IF / ELSE
-    if (n < 0) {
-        return -1; // Factorial no definido para negativos
-    } else if (n == 0) {
-        return 1;
-    } else {
-        return n * factorial(n - 1); // Llamada recursiva
-    }
-}
-
-// -- El código de aquí en adelante se generara dentro de main() --
-
-print(MENSAJE_INICIAL);
-print(SEPARADOR);
-
-// 4. Bucle FOR con declaración de variable interna, BREAK y CONTINUE
-print("Bucle FOR del 0 al 9, pero se salta el 3 y se detiene en 7:");
-for (int i = 0; i < 10; i = i + 1) {
-    if (i == 3) {
-        continue; // 5. Salta la iteración actual
-    }
-    if (i > 6) {
-        break;    // 6. Sale del bucle prematuramente
-    }
-    print(i);
-}
-
-print(SEPARADOR);
-
-// 7. Operadores de Asignacion Compuesta (+=)
-int acumulador = 100;
-acumulador += 50; // Ahora acumulador es 150
-print("Prueba de '+=', valor esperado 150:");
-print(acumulador);
-
-print(SEPARADOR);
-
-// 8. Sentencia UNLESS
-print("Prueba de 'unless':");
-unless (acumulador == 100) {
-    print("Correcto, 'unless' se ejecuto porque el acumulador NO es 100.");
-}
-
-print(SEPARADOR);
-
-// 9. Bucle WHILE y Lectura desde Teclado (READ)
-print("Escribe 'salir' para terminar el bucle while.");
-string entrada = "";
-while (entrada != "salir") {
-    print("Ingresa un comando:");
-    read(entrada);
-    print("Comando recibido: " + entrada);
-}
-
-print(SEPARADOR);
-
-// 10. Operador de Tuberia (|>)
-print("Prueba del Operador de Tuberia con factorial de 6:");
-6 |> factorial |> print; // => print(factorial(6))
-
-print(SEPARADOR);
-print("¡Demostracion completada!");
-
-&lt;/details>
 ## **✒️ Autores**
 
 Este proyecto fue desarrollado por:
