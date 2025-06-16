@@ -176,6 +176,7 @@ print("Prueba del Operador de Tuberia con factorial de 6:");
 print(SEPARADOR);
 print("¡Demostracion completada!");
 
+&lt;/details>
 ## **✒️ Autores**
 
 Este proyecto fue desarrollado por:
