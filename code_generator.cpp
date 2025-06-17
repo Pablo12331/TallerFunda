@@ -37,7 +37,7 @@ static std::string map_type_to_cpp(SymbolBasicType type) {
 //El principal generador de codigo
 void generate_code(Node* ast_root, const std::string& output_filename) {
     if (!ast_root) { //Verifica que haya un AST el cual traducir
-        std::cerr << "[CodeGenerator] AST vacío, no se genera código." << std::endl;
+        std::cerr << "[CodeGenerator] AST vacio, no se genera código." << std::endl;
         return;
     }
 
@@ -90,7 +90,7 @@ void generate_code(Node* ast_root, const std::string& output_filename) {
     output_file.close();
 
     //Reporta que el codigo se haya traducido y generado exitosamente
-    std::cout << "[CodeGenerator] Código generado exitosamente en " << output_filename << std::endl;
+    std::cout << "[CodeGenerator] Codigo generado exitosamente en " << output_filename << std::endl;
 }
 
 //Todo lo que se escriba en este metodo sera puesto en functions_buffer

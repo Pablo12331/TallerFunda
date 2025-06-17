@@ -1,0 +1,46 @@
+//Calculadora simple
+
+int respuesta = 0;
+int valor_1 = 0, valor_2 = 0;
+
+
+int suma(int x, int y){
+    return x + y;
+}
+int resta(int x, int y){
+    return x - y;
+}
+int multiplicacion(int x, int y){
+    return x * y;
+}
+float division(float x, float y){
+    return x/y;
+}
+void exponente(int y, int x, int res){
+    if(x == 0) {
+        print(1);
+        return;
+    }
+    else if(x == 1){
+        print(res);
+        return;
+    }
+    while(x > 1){
+        res = res * y;
+        x -= 1;
+        exponente(y, x, res);
+        return;
+    }
+    return;
+}
+
+print("Ingresa el primer numero: ");
+read(valor_1);
+print("Ingresa el segundo numero: ");
+read(valor_2);
+valor_1|>suma(valor_2)|>print;
+valor_1|>resta(valor_2)|>print;
+valor_1|>multiplicacion(valor_2)|>print;
+valor_1|>division(valor_2)|>print;
+exponente(valor_1, valor_2, valor_1);
+
