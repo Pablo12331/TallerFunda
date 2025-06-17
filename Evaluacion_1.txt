@@ -6,7 +6,7 @@ int valor_1 = 0;
 int valor_2 = 0;
 
 
-int suma(int x, int y){
+int suma(int y){
     return x + y;
 }
 int resta(int x, int y){
