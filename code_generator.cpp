@@ -156,7 +156,7 @@ static void generate_statement_code(Node* node, std::stringstream& out, int inde
                 out << indent(indent_level);
                 VarDeclarationNode* decl_node = (VarDeclarationNode*)node;
 
-                out << map_type_to_cpp(c_ast_node_to_symbol_basic_type(decl_node->varTypeNode));
+                out << map_type_to_cpp(c_ast_node_to_symbol_basic_type(decl_node->varTypeNode)); 
                 out << " " << decl_node->identifier->sval;
 
                 if (decl_node->initialValue) {
@@ -252,7 +252,7 @@ static void generate_statement_code(Node* node, std::stringstream& out, int inde
                 out << indent(indent_level) << "}" << std::endl; //Coloca la respectiva identacion de la llave final del while
                 break;
             }
-            case NODE_FOR: { //Si es un
+            case NODE_FOR: { //Si es
                 out << indent(indent_level); //Coloca la respectivq identacion del for
                 ForNode* for_node = (ForNode*)node; //Guarda en un puntero auxiliar el puntero otorgado
                 out << "for (";
@@ -294,6 +294,7 @@ static void generate_statement_code(Node* node, std::stringstream& out, int inde
                 }
                 out << ") {" << std::endl;
 
+                //Se llama recursivamente a generate_statement_code para poder explorar cada parte dentro del bloque de codigo del for
                 generate_statement_code(for_node->body, out, indent_level + 1);
 
                 out << indent(indent_level) << "}" << std::endl; //Coloca la respectiva identacion de la llave final del for
