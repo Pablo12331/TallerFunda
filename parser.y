@@ -543,7 +543,7 @@ int main(int argc, char *argv[]) {
             //if (!sinErroresDeTipo) {
                 //std::cerr << "[INFO] Nota: Se detectaron errores de tipo. El AST podria mostrar nodos marcados como ERROR_TYPE." << std::endl;
             //}else{
-                //generate_code(globalAstRoot, "salida.cpp");
+                generate_code(globalAstRoot, "salida.cpp");
             //}
             //std::cout << "--- INICIO AST ---" << std::endl;
             //printAst(globalAstRoot);
