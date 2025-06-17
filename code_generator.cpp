@@ -182,10 +182,10 @@ static void generate_statement_code(Node* node, std::stringstream& out, int inde
                 IfNode* current_if = (IfNode*)node; //Guarda en un puntero auxiliar el puntero otorgado
 
                 while (true) {
-                    out << "if ";
+                    out << "if( ";
                     //Busca y imprime la condicion correspondiente del if utilizando generate_expression_code
                     generate_expression_code(current_if->condition, out);
-                    out << " {" << std::endl;
+                    out << " ){" << std::endl;
 
                     //Se llama recursivamente a generate_statement_code para poder explorar cada parte dentro del bloque de codigo del if
                     generate_statement_code(current_if->thenBranch, out, indent_level + 1);
