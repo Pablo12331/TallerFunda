@@ -505,7 +505,7 @@ arg_list:
 //Es la funcion principal para el manejo de errores de syntax
 void yyerror(const char *s) {
     std::cerr << "Error de Sintaxis: " << s << " cerca de la línea " << yylineno << std::endl;
-    //exit(1);(Si se descomenta esta linea, el proceso de analisis parara al primer error, cosa que puede ser incomodo
+    exit(1);//(Si se descomenta esta linea, el proceso de analisis parara al primer error, cosa que puede ser incomodo
     //ya que si hay mas de un error en el codigo, tendria que ir arreglandose uno por uno si no te das cuenta)
 }
 
@@ -539,24 +539,24 @@ int main(int argc, char *argv[]) {
         }
 
         if (globalAstRoot != nullptr) {
-            std::cerr << "[INFO] Raiz del AST capturada. Imprimiendo AST..." << std::endl;
-            if (!sinErroresDeTipo) {
-                std::cerr << "[INFO] Nota: Se detectaron errores de tipo. El AST podria mostrar nodos marcados como ERROR_TYPE." << std::endl;
-            }else{
-                generate_code(globalAstRoot, "salida.cpp");
-            }
-            std::cout << "--- INICIO AST ---" << std::endl;
-            printAst(globalAstRoot);
-            std::cout << "--- FIN AST ---" << std::endl;
+            //std::cerr << "[INFO] Raiz del AST capturada. Imprimiendo AST..." << std::endl;
+            //if (!sinErroresDeTipo) {
+                //std::cerr << "[INFO] Nota: Se detectaron errores de tipo. El AST podria mostrar nodos marcados como ERROR_TYPE." << std::endl;
+            //}else{
+                //generate_code(globalAstRoot, "salida.cpp");
+            //}
+            //std::cout << "--- INICIO AST ---" << std::endl;
+            //printAst(globalAstRoot);
+            //std::cout << "--- FIN AST ---" << std::endl;
 
         } else {
             std::cerr << "[INFO] Analisis sintactico fallido (codigo " << result << ")." << std::endl;
         }
 
-        std::cerr << "[INFO] Liberando AST..." << std::endl;
+        //std::cerr << "[INFO] Liberando AST..." << std::endl;
         freeAst(globalAstRoot);
         globalAstRoot = nullptr; 
-        std::cerr << "[INFO] AST Liberado." << std::endl;
+        //std::cerr << "[INFO] AST Liberado." << std::endl;
 
     } else if (result == 0 && globalAstRoot == nullptr) {
          std::cerr << "[INFO] Analisis sintactico completado con exito (programa vacio)." << std::endl;

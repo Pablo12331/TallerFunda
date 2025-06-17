@@ -12,6 +12,7 @@ static void checkTypesInNodeRecursive(Node* node, SymbolBasicType currentFunctio
 void reportTypeError(const std::string& message, int lineNumber) {
     std::cerr << "Error de Tipo (línea " << lineNumber << "): " << message << std::endl;
     typeErrorCounter++;
+    exit(1);
 }
 
 //Metodo utilizado para tener mayor claridad a la hora de reportar errores
@@ -353,25 +354,23 @@ static void checkTypesInNodeRecursive(Node* node, SymbolBasicType currentFunctio
             break;
         }
 
-        case NODE_VAR_DECLARATION: {//Si es un NODE_VAR_DECLARATION (Ejem: int x = 2)
-            VarDeclarationNode* decl = (VarDeclarationNode*)node; //Guarda en un puntero auxiliar el puntero otorgado
-            if (decl->initialValue) { //Verifica si existe un valor de inicializacion (!nullptr)
-                SymbolBasicType declaredType = c_ast_node_to_symbol_basic_type(decl->varTypeNode); //Verifica que el tipo de la variable sea aceptado
-                SymbolBasicType initExpressionType = getAndCheckType(decl->initialValue); //Le pasa el puntero con el valor de inicializacion a getAndCheckType
-                if (declaredType != SYM_TYPE_ERROR && initExpressionType != SYM_TYPE_ERROR) { //Verifica de que ninguno haya retornado un tipo error
-                    bool compatible = false; //Toma como caso base de que no son compatibles
-                    
-                    //Si es que tanto la declaracion de la variable como el valor de la variable son del mismo tipo 
-                    if (declaredType == initExpressionType) compatible = true; //Entonces cambia la compatibilidad a true
-                    //Excepcion: si es que el tipo de la declaracion es float y el tipo del valor de la variable es int 
-                    else if (declaredType == SYM_TYPE_FLOAT && initExpressionType == SYM_TYPE_INT) compatible = true;  //Entonces cambia la compatibilidad a true
-                    if (!compatible) { //Si es que no cambia el valor de la compatibilidad entonces muestra el error por consola
-                        reportTypeError("Tipo de inicializador '" + symbolBasicTypeToString(initExpressionType) 
-                        + "' No es compatible con el tipo de variable declarada '" 
-                        + symbolBasicTypeToString(declaredType) + "'.", decl->line);
+        case NODE_VAR_DECLARATION: {
+            VarDeclarationNode* decl = (VarDeclarationNode*)node; //Si es un NODE_VAR_DECLARATION
+            if (decl->initialValue) { //Si es que fue asignado con un valor
+                SymbolBasicType declaredType = c_ast_node_to_symbol_basic_type(decl->varTypeNode); //Busca si es que existe y si esta bien el tipo
+                SymbolBasicType initExpressionType = getAndCheckType(decl->initialValue);
+
+                if (declaredType != SYM_TYPE_ERROR && initExpressionType != SYM_TYPE_ERROR) {
+                    bool compatible = (declaredType == initExpressionType) || 
+                                      (declaredType == SYM_TYPE_FLOAT && initExpressionType == SYM_TYPE_INT);
+                    if (!compatible) {
+                        reportTypeError("Tipo de inicializador '" + symbolBasicTypeToString(initExpressionType) + 
+                                        "' no es compatible con el tipo de variable declarada '" + 
+                                        symbolBasicTypeToString(declaredType) + "'.", decl->line);
                     }
                 }
             }
+            c_insert_variable(decl->identifier->sval, decl->varTypeNode, decl->line, (Node*)decl);
             break;
         }
         case NODE_ASSIGNMENT: { //Si es un NODE_ASSIGNMENT(Ejem: x = "Hola")
@@ -510,41 +509,26 @@ static void checkTypesInNodeRecursive(Node* node, SymbolBasicType currentFunctio
             }
             break;
         }
-        case NODE_FUNCTION_DEF: { //Si es un NODE_FUNCTION_DEF
-            FunctionDefNode* funcDefNode = (FunctionDefNode*)node; //Guarda en un puntero auxiliar el puntero otorgado
-            //Verifica y toma el tipo que deberia retornar la funcion utilizando c_ast_node_to_symbol_basic_type, 
-            //pasandole el tipo de retorno mediante el nodo firma de la funcion
+        case NODE_FUNCTION_DEF: {
+            FunctionDefNode* funcDefNode = (FunctionDefNode*)node;
             SymbolBasicType expectedReturnTypeForBody = c_ast_node_to_symbol_basic_type(((FunctionSignatureNode*)funcDefNode->signature)->returnType);
             
-            //Crea un nuevo ambito vacio en la pila de la tabla de simbolos, esta sera utilizada para todo lo declarado dentro de la funcion 
             c_enter_scope();
             
-            //Verifica que el puntero donde estan los parametros sea distinto de nullptr
             if (((FunctionSignatureNode*)funcDefNode->signature)->parameters) {
-                //Guarda el puntero de los parametros en un puntero auxiliar
                 Node* current_param_ast_node = ((FunctionSignatureNode*)funcDefNode->signature)->parameters;
-                
-                //Explora cada uno de los parametros de la funcion
                 while (current_param_ast_node != nullptr) {
-                    //Verifica que el parametro sea una declaracion de variable
                     if (current_param_ast_node->type == NODE_VAR_DECLARATION) {
-                        //Guarda la variable declarada en un puntero auxiliar
                         VarDeclarationNode* p_decl_node = (VarDeclarationNode*)current_param_ast_node;
-                        //Rellena con los parametros el nuevo ambito creado en la tabla de simbolos
                         c_insert_variable(p_decl_node->identifier->sval, p_decl_node->varTypeNode, p_decl_node->line, (Node*)p_decl_node);
                     }
-                    current_param_ast_node = current_param_ast_node->next; //Pasa al siguiente parametro
+                    current_param_ast_node = current_param_ast_node->next;
                 }
             }
-            //verifica que el puntero al cuerpo de la funcion no sea nullptr
             if (funcDefNode->body) {
-                //Llama recursivamente a checkTypesInNodeRecursive pasandole el cuerpo de la funcion y el tipo de retorno que espera la funcion
                 checkTypesInNodeRecursive(funcDefNode->body, expectedReturnTypeForBody, false);
             }
-            
-            //Elimina el utlimo ambito creado al ya haber sido utilizado
             c_exit_scope();
-
             break;
         }
         case NODE_BREAK: { //Si es un NODE_BREAK

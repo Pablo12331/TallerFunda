@@ -1,0 +1,97 @@
+//Calculadora simple
+
+string respuesta = "";
+string operacion = "";
+int valor_1 = 0; 
+int valor_2 = 0;
+
+
+int suma(int x, int y){
+    return x + y;
+}
+int resta(int x, int y){
+    return x - y;
+}
+int multiplicacion(int x, int y){
+    return x * y;
+}
+float division(float x, float y){
+    return x/y;
+}
+void exponente(int y, int x){
+    if(x == 0) {
+        print(1);
+    }
+    int res = y;
+    while (x > 1) {
+        res *= y;
+        x -= 1;
+    }
+    print("Resultado: ");
+    print(res);
+}
+while(respuesta != "-1")   
+{
+    print("---CALCULADORA SIMPLE---");
+    print("Ingrese la operacion deseada: ");
+    print("-Suma (Escriba: +)");
+    print("-Resta (Escriba: -)");
+    print("-Multiplicacion (Escriba: *)");
+    print("-Division(Escriba: /)");
+    print("-Potencia (Escriba: **)");
+    read(operacion);
+    
+    if(operacion == "+")
+    {
+        print("Ingresa el primer numero: ");
+        read(valor_1);
+        print("Ingresa el segundo numero: ");
+        read(valor_2);
+        print("Resultado: ");
+        valor_1|>suma(valor_2)|>print;
+    }
+    else if(operacion == "-")
+    {
+        print("Ingresa el primer numero: ");
+        read(valor_1);        
+        print("Ingresa el segundo numero: ");
+        read(valor_2);
+        print("Resultado: ");
+        valor_1|>resta(valor_2)|>print;
+    }
+    else if(operacion == "*")
+    {
+        print("Ingresa el primer numero: ");
+        read(valor_1);
+        print("Ingresa el segundo numero: ");
+        read(valor_2);
+        print("Resultado: ");
+        valor_1|>multiplicacion(valor_2)|>print;
+    }
+    else if(operacion == "/")
+    {
+        print("Ingresa el dividendo: ");
+        read(valor_1);
+        print("Ingresa el divisor: ");
+        read(valor_2);
+        print("Resultado: ");
+        valor_1|>division(valor_2)|>print;
+    }
+    else if(operacion == "**")
+    {
+        print("Ingresa la base: ");
+        read(valor_1);
+        print("Ingresa el exponente: ");
+        read(valor_2);
+        exponente(valor_1, valor_2);
+    }
+    else
+    {
+        print("Operador incorrecto: " + operacion);
+        continue;
+    }
+
+    print("¿Desea hacer otra operacion?(Escriba -1 si quiere salir)");
+    read(respuesta);
+}
+
