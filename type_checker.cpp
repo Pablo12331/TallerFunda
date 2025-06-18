@@ -361,9 +361,11 @@ static void checkTypesInNodeRecursive(Node* node, SymbolBasicType currentFunctio
                 SymbolBasicType initExpressionType = getAndCheckType(decl->initialValue); //Se toma el tipo del valor de la variable declarada.
 
                 if (declaredType != SYM_TYPE_ERROR && initExpressionType != SYM_TYPE_ERROR) { // Se verifica que ninguno de los 2 sea de tipo error.
-                    //Se verifica que los tipos sean compatibles.
-                    bool compatible = (declaredType == initExpressionType) || 
-                                      (declaredType == SYM_TYPE_FLOAT && initExpressionType == SYM_TYPE_INT)&& (declaredType == SYM_TYPE_INT && initExpressionType == SYM_TYPE_FLOAT);;
+                    bool compatible = false; //variable auxiliar.
+                    if (declaredType == initExpressionType) compatible = true; //Se verifica que los tipos sean compatibles.
+                    else if (declaredType == SYM_TYPE_INT && initExpressionType == SYM_TYPE_FLOAT) compatible = true;
+                    
+                    else if (declaredType == SYM_TYPE_FLOAT && initExpressionType == SYM_TYPE_INT) compatible = true;
                     if (!compatible) { // Si los tipos no son compatibles, da error.
                         reportTypeError("Tipo de inicializador '" + symbolBasicTypeToString(initExpressionType) + 
                                         "' no es compatible con el tipo de variable declarada '" + 
@@ -386,8 +388,8 @@ static void checkTypesInNodeRecursive(Node* node, SymbolBasicType currentFunctio
                 bool compatible = false; //Toma como caso base el que sean incompatibles
 
                 if (lhsType == rhsType) compatible = true; //Si ambos tienen el mismo tipo cambia el valor de compatible a true
-                //Excepcion: Si el tipo de la variable es Float y el tipo del valor al que esta igualada la variable es int
-                else if (lhsType == SYM_TYPE_FLOAT && rhsType == SYM_TYPE_INT) compatible = true; //Entonces cambia la variable compatible a true
+                else if (lhsType == SYM_TYPE_FLOAT && rhsType == SYM_TYPE_INT) compatible = true; //Si los tipos son compatibles, la variable cambia a true.
+                else if (lhsType == SYM_TYPE_INT && rhsType == SYM_TYPE_FLOAT) compatible = true;
                 if (!compatible) { //Si es que la variable compatible no cambia, muestra el error por consola
                     reportTypeError("Tipos incompatibles en la asignación. No se puede asignar el tipo. " 
                                     + symbolBasicTypeToString(rhsType) + " a '" 
