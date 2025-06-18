@@ -354,23 +354,24 @@ static void checkTypesInNodeRecursive(Node* node, SymbolBasicType currentFunctio
             break;
         }
 
-        case NODE_VAR_DECLARATION: {
+        case NODE_VAR_DECLARATION: { //Si es un NODE_VAR_DECLARATION
             VarDeclarationNode* decl = (VarDeclarationNode*)node; //Si es un NODE_VAR_DECLARATION
             if (decl->initialValue) { //Si es que fue asignado con un valor
                 SymbolBasicType declaredType = c_ast_node_to_symbol_basic_type(decl->varTypeNode); //Busca si es que existe y si esta bien el tipo
-                SymbolBasicType initExpressionType = getAndCheckType(decl->initialValue);
+                SymbolBasicType initExpressionType = getAndCheckType(decl->initialValue); //Se toma el tipo del valor de la variable declarada.
 
-                if (declaredType != SYM_TYPE_ERROR && initExpressionType != SYM_TYPE_ERROR) {
+                if (declaredType != SYM_TYPE_ERROR && initExpressionType != SYM_TYPE_ERROR) { // Se verifica que ninguno de los 2 sea de tipo error.
+                    //Se verifica que los tipos sean compatibles.
                     bool compatible = (declaredType == initExpressionType) || 
-                                      (declaredType == SYM_TYPE_FLOAT && initExpressionType == SYM_TYPE_INT);
-                    if (!compatible) {
+                                      (declaredType == SYM_TYPE_FLOAT && initExpressionType == SYM_TYPE_INT)&& (declaredType == SYM_TYPE_INT && initExpressionType == SYM_TYPE_FLOAT);;
+                    if (!compatible) { // Si los tipos no son compatibles, da error.
                         reportTypeError("Tipo de inicializador '" + symbolBasicTypeToString(initExpressionType) + 
                                         "' no es compatible con el tipo de variable declarada '" + 
                                         symbolBasicTypeToString(declaredType) + "'.", decl->line);
                     }
                 }
             }
-            c_insert_variable(decl->identifier->sval, decl->varTypeNode, decl->line, (Node*)decl);
+            c_insert_variable(decl->identifier->sval, decl->varTypeNode, decl->line, (Node*)decl); //Se guarda el nombre, el tipo, la linea y el puntero en la tabla de simbolos.
             break;
         }
         case NODE_ASSIGNMENT: { //Si es un NODE_ASSIGNMENT(Ejem: x = "Hola")
@@ -509,26 +510,27 @@ static void checkTypesInNodeRecursive(Node* node, SymbolBasicType currentFunctio
             }
             break;
         }
-        case NODE_FUNCTION_DEF: {
-            FunctionDefNode* funcDefNode = (FunctionDefNode*)node;
+        case NODE_FUNCTION_DEF: { //Si es un nodo de tipo NODE_FUNCTION_DEF
+            FunctionDefNode* funcDefNode = (FunctionDefNode*)node; //Guarda en un puntero auxiliar el puntero otorgado.
+            //Se toma el tipo que retorna la función utilizando c_ast_node_to_symbol_basic_type y se guarda.
             SymbolBasicType expectedReturnTypeForBody = c_ast_node_to_symbol_basic_type(((FunctionSignatureNode*)funcDefNode->signature)->returnType);
             
-            c_enter_scope();
+            c_enter_scope(); //Se crea un nuevo scope.
             
-            if (((FunctionSignatureNode*)funcDefNode->signature)->parameters) {
-                Node* current_param_ast_node = ((FunctionSignatureNode*)funcDefNode->signature)->parameters;
-                while (current_param_ast_node != nullptr) {
-                    if (current_param_ast_node->type == NODE_VAR_DECLARATION) {
-                        VarDeclarationNode* p_decl_node = (VarDeclarationNode*)current_param_ast_node;
-                        c_insert_variable(p_decl_node->identifier->sval, p_decl_node->varTypeNode, p_decl_node->line, (Node*)p_decl_node);
+            if (((FunctionSignatureNode*)funcDefNode->signature)->parameters) { //Se toma los parámetros de la función, si es que hay.
+                Node* current_param_ast_node = ((FunctionSignatureNode*)funcDefNode->signature)->parameters; //Guarda en un puntero auxiliar el puntero de los parámetros.
+                while (current_param_ast_node != nullptr) { //se exploran los parámetros de la función.
+                    if (current_param_ast_node->type == NODE_VAR_DECLARATION) { //Se verifica que el tipo de nodo del parámetro sea NODE_VAR_DECLARATION.
+                        VarDeclarationNode* p_decl_node = (VarDeclarationNode*)current_param_ast_node; //Se guarda en un puntero auxiliar el puntero del parámetro
+                        c_insert_variable(p_decl_node->identifier->sval, p_decl_node->varTypeNode, p_decl_node->line, (Node*)p_decl_node); //Se inserta el nombre de la variable, el tipo, la línea donde está declarada y el nodo en la tabla de símbolos.
                     }
-                    current_param_ast_node = current_param_ast_node->next;
+                    current_param_ast_node = current_param_ast_node->next; //pasa al siguiente parámetro.
                 }
             }
-            if (funcDefNode->body) {
-                checkTypesInNodeRecursive(funcDefNode->body, expectedReturnTypeForBody, false);
+            if (funcDefNode->body) { //Se toma el cuerpo de la función.
+                checkTypesInNodeRecursive(funcDefNode->body, expectedReturnTypeForBody, false); //Se llama recursivamente a checkTypesInNodeRecursive, pasandole el cuerpo de la función.
             }
-            c_exit_scope();
+            c_exit_scope(); //Se sale del scope.
             break;
         }
         case NODE_BREAK: { //Si es un NODE_BREAK

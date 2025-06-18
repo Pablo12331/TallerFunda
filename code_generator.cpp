@@ -151,17 +151,17 @@ static void generate_statement_code(Node* node, std::stringstream& out, int inde
                 }
                 break;
             }
-
-            case NODE_VAR_DECLARATION: {
+            
+            case NODE_VAR_DECLARATION: { //Si es un NODE_VAR_DECLARATION 
                 out << indent(indent_level);
-                VarDeclarationNode* decl_node = (VarDeclarationNode*)node;
-
+                VarDeclarationNode* decl_node = (VarDeclarationNode*)node; //Se guarda en un puntero auxiliar el puntero otorgado.
+                //Verifica que el tipo de la declaracion sea valido, toma su enum correspondiente utilizando c_ast_node_to_symbol_basic_type, luego lo traduce al tipo que deberia ser en C++ utilizando map_type_to_cpp
                 out << map_type_to_cpp(c_ast_node_to_symbol_basic_type(decl_node->varTypeNode)); 
                 out << " " << decl_node->identifier->sval;
 
-                if (decl_node->initialValue) {
+                if (decl_node->initialValue) { //Si la declaración tiene un valor
                     out << " = ";
-                    generate_expression_code(decl_node->initialValue, out);
+                    generate_expression_code(decl_node->initialValue, out); //llama a generate_expression_code para identificar el valor y escribirlo.
                 }
                 out << ";" << std::endl;
                 break;
